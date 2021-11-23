@@ -33,6 +33,16 @@ const Account = connection.define("account",
         password: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        money: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        like_money: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
     }
 );
@@ -46,18 +56,18 @@ const Class = connection.define("class",
             unique: false,
             autoIncrement: true
         },
-        number: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
         char: {
             type: DataTypes.CHAR,
+            allowNull: false
+        },
+        act: {
+            type: DataTypes.INTEGER,
             allowNull: false
         }
     }
 );
 Account.hasOne(Class);
-Class.belongsToMany(Account, {through: "account_class"});
+Class.belongsToMany(Account);
 
 const Achievement = connection.define("achievement",
     {
@@ -72,13 +82,20 @@ const Achievement = connection.define("achievement",
             type: DataTypes.STRING,
             allowNull: false
         },
-        path: {
+        description: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        design_path: {
             type: DataTypes.STRING,
             allowNull: false
         }
     }
 );
-const AccountAchievement = connection.define("account_achievement",
+Account.hasMany(Achievement);
+Achievement.belongsToMany(Account, {through: "account_achievement"});
+
+const Charter = connection.define("module",
     {
         id: {
             type: DataTypes.INTEGER,
@@ -87,17 +104,96 @@ const AccountAchievement = connection.define("account_achievement",
             unique: false,
             autoIncrement: true
         },
-        level: {
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        rank_number_max: {
             type: DataTypes.INTEGER,
-            default: 1
+            allowNull: false,
+            defaultValue: 0
+        },
+        progress_max: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
         }
     }
 );
-Account.hasMany(Achievement);
-Achievement.belongsToMany(Account, {through: AccountAchievement})
+
+const Module = connection.define("module",
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            unique: false,
+            autoIncrement: true
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
+    }
+);
+Charter.hasMany(Module);
+Module.belongsTo(Charter);
+
+const Theme = connection.define("theme",
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            unique: false,
+            autoIncrement: true
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
+    }
+);
+Module.hasMany(Theme);
+Theme.belongsToMany(Module);
+
+const AccountLvlCharter = connection.define("theme",
+    {
+        progress_count: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        rank_count: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        }
+    }
+);
+Account.hasOne(AccountLvlCharter);
+AccountLvlCharter.belongsToMany(Account);
+
+const Message = connection.define("theme",
+    {
+        text: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        rank_count: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        }
+    }
+);
 
 module.exports = {
     Account,
     Class,
-    AccountAchievement
+    Theme,
+    Module,
+    Charter,
+    AccountLvlCharter,
+    Message
 }
