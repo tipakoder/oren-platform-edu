@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const ApiError = require("../main/error/apiError");
+const Response = require("../main/server/response");
 const {Account} = require("../main/db/models");
 
 const createSession = (id, email, role) => {
@@ -52,10 +53,12 @@ const create = async(req) => {
     let account = accountCreate.dataValues;
     let token = createSession(account.id, account.email, account.role);
 
-    return {
-        id: account.id,
-        token
-    };
+    return Response.send(
+        {
+            id: account.id,
+            token
+        }
+    );
 };
 
 const auth = async(req) => {

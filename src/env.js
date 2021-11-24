@@ -9,7 +9,11 @@ global.dbModels = require("./main/db/models");
 
 // Sync database
 if(process.argv.indexOf("--sync") !== -1) {
-    global.dbConnection.sync({force: true}).then(() => {
+    global.dbConnection.sync({force: true}).then(async() => {
+        await global.dbModels.Role.create({name: "user"});
+        await global.dbModels.Role.create({name: "teacher"});
+        await global.dbModels.Role.create({name: "admin"});
+    }).then(() => {
         global.dbConnection.close();
     });
     return true;
