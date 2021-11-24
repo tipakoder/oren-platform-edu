@@ -15,7 +15,7 @@ class ApiError extends Error {
      * @param object
      * @return {ApiError}
      */
-    notFound(object = "Object") {
+    static notFound(object = "Object") {
         return new ApiError(404, `${object} is not found`);
     }
 
@@ -23,7 +23,7 @@ class ApiError extends Error {
      * Forbidden error
      * @return {ApiError}
      */
-    forbidden() {
+    static forbidden() {
         return new ApiError(403, `Forbidden access`);
     }
 

@@ -65,7 +65,18 @@ const auth = async(req) => {
     return {method: "accountAuth"};
 };
 
+const verifyToken = async(req, isVerify = false) => {
+    let token = (req.method.toUpperCase() === "GET") ? req.query.token : req.body.token;
+    let verify = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+    if(verify) {
+        return verify;
+    } else {
+        throw ApiError.forbidden();
+    }
+}
+
 module.exports = {
     create,
-    auth
+    auth,
+    verifyToken
 }
