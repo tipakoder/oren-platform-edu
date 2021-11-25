@@ -38,7 +38,7 @@ const setCharter = async (req) => {
     throw new ApiError(400, `Progress max value undefined`);
   }
   const account = verifyToken(req);
-  console.log((new Date)+`: Account ${account.id} set charter`);
+  console.log((new Date(Date.now())), `: Account ${account.id} set charter`);
   let newCharter = await Charter.create({
     name: name,
     rank_number_max: rank_number_max,

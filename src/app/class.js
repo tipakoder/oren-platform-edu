@@ -35,6 +35,8 @@ const setClass = async (req) => {
   ) {
     throw new ApiError(400, `Class already exists!`)
   }
+  const account = verifyToken(req);
+  console.log((new Date(Date.now())), `: Account ${account.id} set class`);
   let newClass = await Class.create({
     char: char,
     act: act

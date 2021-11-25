@@ -1,4 +1,5 @@
 const { Role } = require("../main/db/models");
+const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
 
@@ -16,7 +17,25 @@ const getAllRole = async (req) => {
   return { roles: sendArray }
 }
 
+const setRole = async (req) => {
+  let name = req.query.name
+  if(typeof name === "undefined") {
+    throw new ApiError(400, `Name value undefined`)
+  }
+  const account = verifyToken(req);
+  console.log((new Date(Date.now())), `: Account ${account.id} set charter`);
+  let newRole = await Role.create({
+    name: name
+  });
+  return {
+    role: {
+      id: newRole.id,
+      name: newRole.name
+    }
+  }
+}
 
 module.exports = {
-  getAllRole
+  getAllRole,
+  setRole
 }
