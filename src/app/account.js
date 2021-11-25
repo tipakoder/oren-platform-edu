@@ -4,16 +4,32 @@ const ApiError = require("../main/error/apiError");
 const Response = require("../main/server/response");
 const {Account} = require("../main/db/models");
 
-const createSession = (id, email, role) => {
-    return jwt.sign({id, email, role}, process.env.JWT_SECRET_KEY, {expiresIn: '24h'});
+/**
+ * Create session
+ * @return {*}
+ * @param object
+ */
+const createSession = (object) => {
+    return jwt.sign(object, process.env.JWT_SECRET_KEY, {expiresIn: '24h'});
 }
 
-const create = async(req) => {
+/**
+ * Registration account by code
+ * @param req
+ * @return {Promise<{data: {}, type: string}>}
+ */
+const registerByCode = async(req) => {
     let name = req.query.name;
     let surname = req.query.surname;
     let nickname = req.query.nickname;
     let email = req.query.email;
     let password = req.query.password;
+    let code = req.query.code;
+
+    // Check code
+    if(process.env.REGISTRATION_CODE !== code) {
+        throw new ApiError(403, "Code invalid");
+    }
 
     // Check accounts with repeat nickname and email
     if(
@@ -51,7 +67,7 @@ const create = async(req) => {
     );
 
     let account = accountCreate.dataValues;
-    let token = createSession(account.id, account.email, account.role);
+    let token = createSession(account);
 
     return Response.send(
         {
@@ -61,22 +77,33 @@ const create = async(req) => {
     );
 };
 
+/**
+ * Auth account
+ * @param req
+ * @return {Promise<{method: string}>}
+ */
 const auth = async(req) => {
     return {method: "accountAuth"};
 };
 
+/**
+ * Verify token
+ * @param req
+ * @param isVerify
+ * @return {Promise<*|{data: {}, type: string}>}
+ */
 const verifyToken = async(req, isVerify = false) => {
     let token = (req.method.toUpperCase() === "GET") ? req.query.token : req.body.token;
     let verify = await jwt.verify(token, process.env.JWT_SECRET_KEY);
     if(verify) {
-        return verify;
+        return (isVerify) ? verify : Response.send(verify);
     } else {
         throw ApiError.forbidden();
     }
 }
 
 module.exports = {
-    create,
+    registerByCode,
     auth,
     verifyToken
 }
