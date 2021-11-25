@@ -69,12 +69,10 @@ const registerByCode = async(req) => {
     let account = accountCreate.dataValues;
     let token = createSession(account);
 
-    return Response.send(
-        {
-            id: account.id,
-            token
-        }
-    );
+    return {
+        id: account.id,
+        token
+    };
 };
 
 /**
@@ -89,14 +87,13 @@ const auth = async(req) => {
 /**
  * Verify token
  * @param req
- * @param isVerify
  * @return {Promise<*|{data: {}, type: string}>}
  */
-const verifyToken = async(req, isVerify = false) => {
+const verifyToken = async(req) => {
     let token = (req.method.toUpperCase() === "GET") ? req.query.token : req.body.token;
     let verify = await jwt.verify(token, process.env.JWT_SECRET_KEY);
     if(verify) {
-        return (isVerify) ? verify : Response.send(verify);
+        return verify;
     } else {
         throw ApiError.forbidden();
     }

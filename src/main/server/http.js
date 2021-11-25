@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const colors = require("colors");
 const express = require("express");
+const Response = require("response");
 
 class HttpServer {
     #host;
@@ -44,7 +45,7 @@ class HttpServer {
 
             if(module[actionName]) {
                 try {
-                    return res.json(await module[actionName](req)).end();
+                    return res.json(Response.send(await module[actionName](req))).end();
                 } catch (e) {
                     if(e["getJson"])
                         return res.json(e.getJson()).end();
