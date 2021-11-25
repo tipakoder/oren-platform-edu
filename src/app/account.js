@@ -78,10 +78,31 @@ const registerByCode = async(req) => {
 /**
  * Auth account
  * @param req
- * @return {Promise<{method: string}>}
+ * @return {Promise<{id, token: *}>}
  */
 const auth = async(req) => {
-    return {method: "accountAuth"};
+    let emailOrNickname = req.query.login;
+    let password = req.query.password;
+
+    let accountByLogin;
+    if(!(accountByLogin = await Account.findOne({where: {email: emailOrNickname}}))) {
+        if(!(accountByLogin = await Account.findOne({where: {nickname: emailOrNickname}}))) {
+            throw new ApiError(400, "Nickname or email not find!");
+        }
+    }
+
+    let passwordCheck = bcrypt.compareSync(password, accountByLogin.password);
+
+    if(!passwordCheck) {
+        throw new ApiError(403, "Password incorrect!");
+    }
+
+    let token = createSession(accountByLogin);
+
+    return {
+        id: accountByLogin.id,
+        token
+    };
 };
 
 /**
