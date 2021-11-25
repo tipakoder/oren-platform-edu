@@ -15,7 +15,7 @@ const getAllCharter = async (req) => {
       progress_max: el.progress_max
     });
   }); 
-  return sendArray
+  return { charters: sendArray }
 }
 
 

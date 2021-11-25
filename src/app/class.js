@@ -14,7 +14,7 @@ const getAllClass = async (req) => {
       act: el.act
     });
   }); 
-  return sendArray
+  return { classes: sendArray }
 }
 
 

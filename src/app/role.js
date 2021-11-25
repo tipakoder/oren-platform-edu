@@ -13,7 +13,7 @@ const getAllRole = async (req) => {
       name: el.name
     });
   }); 
-  return sendArray
+  return { roles: sendArray }
 }
 
 
