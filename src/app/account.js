@@ -36,23 +36,23 @@ const registerByCode = async(req) => {
         await Account.findOne({where: {nickname}}) ||
         await Account.findOne({where: {email}})
     ) {
-        throw new ApiError(403, "Nickname or email already exists!");
+        throw new ApiError(400, "Nickname or email already exists!");
     }
 
     if(name.length > 120)
-        throw new ApiError(403, "Name more 120 symbols");
+        throw new ApiError(400, "Name more 120 symbols");
 
     if(surname.length > 120)
-        throw new ApiError(403, "Surname more 120 symbols");
+        throw new ApiError(400, "Surname more 120 symbols");
 
     if(nickname.length > 120 || nickname.length < 4)
-        throw new ApiError(403, "Nickname more 120 or less 4 symbols");
+        throw new ApiError(400, "Nickname more 120 or less 4 symbols");
 
     if(email.length > 120)
-        throw new ApiError(403, "Email more 120 symbols");
+        throw new ApiError(400, "Email more 120 symbols");
 
     if(password.length < 6)
-        throw new ApiError(403, "Password less 6 symbols");
+        throw new ApiError(400, "Password less 6 symbols");
 
     password = bcrypt.hashSync(password, 2);
 
