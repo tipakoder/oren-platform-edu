@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const colors = require("colors");
 const express = require("express");
-const Response = require("response");
+const Response = require("./response");
 
 class HttpServer {
     #host;
