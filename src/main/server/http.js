@@ -1,9 +1,12 @@
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const cors = require("cors");
 const colors = require("colors");
 const express = require("express");
 const Response = require("./response");
+const bodyParser = require("body-parser");
+const expressFormData = require("express-form-data");
 
 class HttpServer {
     #host;
@@ -22,6 +25,19 @@ class HttpServer {
         this.#app = express();
 
         this.#app.use(cors());
+        this.#app.use(bodyParser.json())
+        this.#app.use(bodyParser.urlencoded({ extended: true }));
+
+        this.#app.use(expressFormData.parse(
+            {
+                uploadDir: os.tmpdir(),
+                autoClean: true
+            }
+        ));
+
+        this.#app.use(expressFormData.format());
+        this.#app.use(expressFormData.stream());
+        this.#app.use(expressFormData.union());
 
         this.#app.use("/:module/:action", async(req, res, next) => {
             return await this.routing(req, res, next);
