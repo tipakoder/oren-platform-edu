@@ -62,7 +62,8 @@ const registerByCode = async(req) => {
             surname,
             nickname,
             email,
-            password
+            password,
+            roleId: 3
         }
     );
 
@@ -97,19 +98,19 @@ const auth = async(req) => {
             throw new ApiError(400, "Nickname or email not find!");
         }
     }
-    
-    let passwordCheck = bcrypt.compareSync(password, accountByLogin.password);
-    
+
+    let passwordCheck = bcrypt.compareSync(password, accountByLogin.dataValues.password);
+
     if(!passwordCheck) {
         throw new ApiError(403, "Password incorrect!");
     }
-    
-    let token = createSession(accountByLogin);
+
+    let token = createSession(accountByLogin.dataValues);
 
     console.log(accountByLogin.id, token);
 
     return {
-        id: accountByLogin.id,
+        id: accountByLogin.dataValues.id,
         token
     };
 };
