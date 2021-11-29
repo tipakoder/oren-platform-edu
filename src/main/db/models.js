@@ -350,6 +350,7 @@ module.exports = {
     Module,
     Charter,
     AccountLvlCharter,
+    Achievement,
     Message,
     ThemePostQuestion,
     Question,

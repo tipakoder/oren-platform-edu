@@ -4,7 +4,7 @@ const { verifyToken } = require("./account");
 
 
 const getAllRole = async (req) => {
-  const account = verifyToken(req);
+  const account = await verifyToken(req);
   console.log(`Account ${account.id} get all role`);
   let allRole = await Role.findAll(); 
   let sendArray = [];
@@ -22,7 +22,7 @@ const setRole = async (req) => {
   if(typeof name === "undefined") {
     throw new ApiError(400, `Name value undefined`)
   }
-  const account = verifyToken(req);
+  const account = await verifyToken(req);
   console.log((new Date(Date.now())), `: Account ${account.id} set charter`);
   let newRole = await Role.create({
     name: name

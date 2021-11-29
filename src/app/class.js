@@ -4,7 +4,7 @@ const { verifyToken } = require("./account");
 
 
 const getAllClass = async (req) => {
-  const account = verifyToken(req);
+  const account = await verifyToken(req);
   console.log(`Account ${account.id} get all class`);
   let allClass = await Class.findAll(); 
   let sendArray = [];
@@ -35,7 +35,7 @@ const setClass = async (req) => {
   ) {
     throw new ApiError(400, `Class already exists!`)
   }
-  const account = verifyToken(req);
+  const account = await verifyToken(req);
   console.log((new Date(Date.now())), `: Account ${account.id} set class`);
   let newClass = await Class.create({
     char: char,

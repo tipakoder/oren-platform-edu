@@ -4,7 +4,7 @@ const { verifyToken } = require("./account");
 
 
 const getAllCharter = async (req) => {
-  const account = verifyToken(req);
+  const account = await verifyToken(req);
   console.log((new Date)+`: Account ${account.id} get all charter`);
   let allCharter = await Charter.findAll(); 
   let sendArray = [];
@@ -37,7 +37,7 @@ const setCharter = async (req) => {
   if(typeof progress_max === "undefined") {
     throw new ApiError(400, `Progress max value undefined`);
   }
-  const account = verifyToken(req);
+  const account = await verifyToken(req);
   console.log((new Date(Date.now())), `: Account ${account.id} set charter`);
   let newCharter = await Charter.create({
     name: name,
