@@ -62,7 +62,8 @@ const registerByCode = async(req) => {
             surname,
             nickname,
             email,
-            password
+            password,
+            roleId: 3
         }
     );
 
