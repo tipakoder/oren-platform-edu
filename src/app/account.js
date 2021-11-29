@@ -91,16 +91,16 @@ const auth = async(req) => {
         }
     }
 
-    let passwordCheck = bcrypt.compareSync(password, accountByLogin.password);
+    let passwordCheck = bcrypt.compareSync(password, accountByLogin.dataValues.password);
 
     if(!passwordCheck) {
         throw new ApiError(403, "Password incorrect!");
     }
 
-    let token = createSession(accountByLogin);
+    let token = createSession(accountByLogin.dataValues);
 
     return {
-        id: accountByLogin.id,
+        id: accountByLogin.dataValues.id,
         token
     };
 };
