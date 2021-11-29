@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 const colors = require("colors");
 const express = require("express");
 const Response = require("./response");
@@ -19,6 +20,8 @@ class HttpServer {
         this.#port = port;
 
         this.#app = express();
+
+        this.#app.use(cors());
 
         this.#app.use("/:module/:action", async(req, res, next) => {
             return await this.routing(req, res, next);
