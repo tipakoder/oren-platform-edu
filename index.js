@@ -2,6 +2,9 @@ const os = require("os");
 const colors = require("colors");
 const cluster = require("cluster");
 
+// Static root directory
+global.rootDirectoryStart = __dirname;
+
 // CPUs length
 const cpuLength = os.cpus().length / 2;
 

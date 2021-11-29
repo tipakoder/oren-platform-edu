@@ -39,6 +39,9 @@ class HttpServer {
         this.#app.use(expressFormData.stream());
         this.#app.use(expressFormData.union());
 
+        global.publicDirectory = path.join(global.rootDirectoryStart, "public");
+        this.#app.use("/public", express.static(global.publicDirectory));
+
         this.#app.use("/:module/:action", async(req, res, next) => {
             return await this.routing(req, res, next);
         });
