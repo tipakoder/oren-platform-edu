@@ -83,6 +83,13 @@ const registerByCode = async(req) => {
 const auth = async(req) => {
     let emailOrNickname = req.query.login;
     let password = req.query.password;
+    
+    if(typeof emailOrNickname === "undefined") {
+        throw new ApiError(400, `Login or email undefined`);
+    }
+    if(typeof password === "undefined") {
+        throw new ApiError(400, `Password undefined`);
+    }
 
     let accountByLogin;
     if(!(accountByLogin = await Account.findOne({where: {email: emailOrNickname}}))) {
@@ -90,14 +97,16 @@ const auth = async(req) => {
             throw new ApiError(400, "Nickname or email not find!");
         }
     }
-
+    
     let passwordCheck = bcrypt.compareSync(password, accountByLogin.password);
-
+    
     if(!passwordCheck) {
         throw new ApiError(403, "Password incorrect!");
     }
-
+    
     let token = createSession(accountByLogin);
+
+    console.log(accountByLogin.id, token);
 
     return {
         id: accountByLogin.id,
