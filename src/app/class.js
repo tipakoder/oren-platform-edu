@@ -20,12 +20,14 @@ const getAllClass = async (req) => {
     console.log(`Account ${account.id} get all class`);
     let allClass = await Class.findAll();
     let sendArray = [];
+    console.log(Account)
+    console.log(await Account.findAll({where: {classId: 1}}).length)
     allClass.forEach(el => {
         sendArray.push({
             id: el.id,
             char: el.char,
             act: getCurrentClassAct(el.act),
-            countStudents: await Account.findAll({where: {classId}}).length
+            countStudents: await Account.findAll({where: {classId: el.id}}).length
         });
     });
     return { classes: sendArray }
