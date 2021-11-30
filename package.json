@@ -8,6 +8,7 @@
     "dev": "node index.js",
     "devmon": "nodemon index.js",
     "sync": "node index.js --sync",
+    "deamon": "node index.js --deamon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nikita Sarychev",

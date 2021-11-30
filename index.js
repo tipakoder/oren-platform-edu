@@ -8,6 +8,12 @@ global.rootDirectoryStart = __dirname;
 // CPUs length
 const cpuLength = os.cpus().length / 2;
 
+// Start deamon if exists arg
+if(process.argv.indexOf("--deamon") !== -1) {
+    require("./src/deamon");
+    return;
+}
+
 // If cluster argument
 if(process.argv.indexOf("--cluster") !== -1) {
     // Master process (cluster)

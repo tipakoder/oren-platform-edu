@@ -15,19 +15,27 @@ const getCurrentClassAct(act) {
     return act;
 }
 
+/**
+ * Get count of students by class_id
+ */
+const getStudentsCountByClassId(classId) {
+    return await global.dbModels.Account.findAll({where: {classId}}).length;
+}
+
 const getAllClass = async (req) => {
-  const account = await verifyToken(req);
-  console.log(`Account ${account.id} get all class`);
-  let allClass = await Class.findAll(); 
-  let sendArray = [];
-  allClass.forEach(el => {
-    sendArray.push({
-      id: el.id,
-      char: el.char,
-      act: getCurrentClassAct(el.act)
+    const account = await verifyToken(req);
+    console.log(`Account ${account.id} get all class`);
+    let allClass = await Class.findAll();
+    let sendArray = [];
+    allClass.forEach(el => {
+        sendArray.push({
+            id: el.id,
+            char: el.char,
+            act: getCurrentClassAct(el.act),
+            countStudents: getStudentsCountByClassId(el.id)
+        });
     });
-  }); 
-  return { classes: sendArray }
+    return { classes: sendArray }
 }
 
 const setClass = async (req) => {
