@@ -121,6 +121,9 @@ const auth = async(req) => {
  * @return {Promise<*|{data: {}, type: string}>}
  */
 const verifyToken = async(req) => {
+    if(!req.headers.token)
+        throw new ApiError(403, "Token invalid");
+
     let token = req.headers.token;
     let verify = await jwt.verify(token, process.env.JWT_SECRET_KEY);
     if(verify) {
