@@ -5,7 +5,7 @@ const { verifyToken } = require("./account");
 /**
  * Calculate actuality act for class by year education
  */
-const getCurrentClassAct(act) {
+const getCurrentClassAct = (act) => {
     let currentDate = new Date(Date.now());
     act = currentDate.getFullYear() - act;
 
@@ -18,7 +18,7 @@ const getCurrentClassAct(act) {
 /**
  * Get count of students by class_id
  */
-const getStudentsCountByClassId(classId) {
+const getStudentsCountByClassId = (classId) => {
     return await global.dbModels.Account.findAll({where: {classId}}).length;
 }
 
