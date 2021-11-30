@@ -119,7 +119,7 @@ const auth = async(req) => {
  * @return {Promise<*|{data: {}, type: string}>}
  */
 const verifyToken = async(req) => {
-    let token = (req.method.toUpperCase() === "GET") ? req.query.token : req.body.token;
+    let token = req.headers.token;
     let verify = await jwt.verify(token, process.env.JWT_SECRET_KEY);
     if(verify) {
         return verify;

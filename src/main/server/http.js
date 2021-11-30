@@ -47,7 +47,7 @@ class HttpServer {
         });
 
         this.#app.use((req, res) => {
-            res.json({type: "error", code: 404, message: "Incorrect request"}).end();
+            res.status(404).json({type: "error", code: 404, message: "Incorrect request"}).end();
         });
     }
 
@@ -69,8 +69,10 @@ class HttpServer {
                 try {
                     return res.json(Response.send(await module[actionName](req))).end();
                 } catch (e) {
-                    if(e["getJson"])
-                        return res.json(e.getJson()).end();
+                    if(e["getJson"]) {
+                        let errorJson = e.getJson();
+                        return res.status(errorJson.code).json(errorJson).end();
+                    }
 
                     return res.end(e.toString());
                 }
