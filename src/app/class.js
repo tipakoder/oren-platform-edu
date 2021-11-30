@@ -18,9 +18,8 @@ const getCurrentClassAct = (act) => {
 /**
  * Get count of students by class_id
  */
-const getStudentsCountByClassId = async(classId) => {
+const getCountStudents = async(classId) => {
     let students = await Account.findAll({where: {classId}});
-    console.log(students);
     return students.length;
 }
 
@@ -34,7 +33,7 @@ const getAllClass = async (req) => {
             id: el.id,
             char: el.char,
             act: getCurrentClassAct(el.act),
-            countStudents: (await getStudentsCountByClassId(el.id))
+            countStudents: (await getCountStudents(el.id))
         });
     });
     return { classes: sendArray }
