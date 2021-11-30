@@ -485,6 +485,9 @@ const ResponseQuestion = connection.define("response_question",
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
+        description: {
+            type: DataTypes.STRING
+        },
         question_id: {
             type: DataTypes.INTEGER,
             references: {
