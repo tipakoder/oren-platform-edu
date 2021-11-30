@@ -32,7 +32,7 @@ const getAllClass = async (req) => {
             id: el.id,
             char: el.char,
             act: getCurrentClassAct(el.act),
-            countStudents: await getStudentsCountByClassId(el.id)
+            countStudents: (await getStudentsCountByClassId(el.id))
         });
     });
     return { classes: sendArray }
