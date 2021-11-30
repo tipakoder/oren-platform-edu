@@ -2,6 +2,18 @@ const { Class } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
+/**
+ * Calculate actuality act for class by year education
+ */
+const getCurrentClassAct(act) {
+    let currentDate = new Date(Date.now());
+    act = currentDate.getFullYear() - act;
+
+    if(currentDate.getMonth() > 9)
+        act += 1;
+
+    return act;
+}
 
 const getAllClass = async (req) => {
   const account = await verifyToken(req);
@@ -12,7 +24,7 @@ const getAllClass = async (req) => {
     sendArray.push({
       id: el.id,
       char: el.char,
-      act: el.act
+      act: getCurrentClassAct(el.act)
     });
   }); 
   return { classes: sendArray }
