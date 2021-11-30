@@ -13,6 +13,7 @@ if(process.argv.indexOf("--sync") !== -1) {
         await global.dbModels.Role.create({name: "user"});
         await global.dbModels.Role.create({name: "teacher"});
         await global.dbModels.Role.create({name: "admin"});
+        await global.dbModels.TypeQuestion.create({ name: "oneCurrent" })
     }).then(() => {
         global.dbModels.Account.create({name: "Герман", surname: "Парасовченко", nickname: "german", email: "admin@dolbaeb.oksei.ru", password: require("bcrypt").hashSync("сосичлен228", 2), roleId: 1}).then(() => {
             global.dbConnection.close();
