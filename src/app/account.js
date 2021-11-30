@@ -107,8 +107,6 @@ const auth = async(req) => {
 
     let token = createSession(accountByLogin.dataValues);
 
-    console.log(accountByLogin.id, token);
-
     return {
         id: accountByLogin.dataValues.id,
         token
