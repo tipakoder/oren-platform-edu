@@ -1,4 +1,4 @@
-const { Class } = require("../main/db/models");
+const { Class, Account } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
@@ -19,7 +19,7 @@ const getCurrentClassAct = (act) => {
  * Get count of students by class_id
  */
 const getStudentsCountByClassId = async(classId) => {
-    return await global.dbModels.Account.findAll({where: {classId}}).length;
+    return await Account.findAll({where: {classId}}).length;
 }
 
 const getAllClass = async (req) => {
