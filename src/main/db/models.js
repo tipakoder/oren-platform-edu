@@ -472,6 +472,28 @@ const ModuleCheckAccount = connection.define("module_check_account",
     }
 );
 
+const ResponseQuestion = connection.define("response_question",
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            unique: false,
+            autoIncrement: true
+        },
+        is_current: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
+        question_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Question,
+                key: 'id'
+            }
+        } 
+    }
+)
 
 module.exports = {
     Account,
@@ -492,5 +514,6 @@ module.exports = {
     AccountAchievement,
     LikeCheck,
     ThemeCheckAccount,
-    ModuleCheckAccount
+    ModuleCheckAccount,
+    ResponseQuestion
 }
