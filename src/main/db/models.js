@@ -17,6 +17,26 @@ const Role = connection.define("role",
     }
 );
 
+const Class = connection.define("class",
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            unique: false,
+            autoIncrement: true
+        },
+        char: {
+            type: DataTypes.CHAR,
+            allowNull: false
+        },
+        act: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        }
+    }
+);
+
 const Account = connection.define("account",
     {
         id: {
@@ -55,31 +75,24 @@ const Account = connection.define("account",
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        role_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Role,
+                key: 'id'
+            }
+        },
+        class_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Class,
+                key: 'id'
+            }
         }
     }
 );
-Role.hasOne(Account);
 
-const Class = connection.define("class",
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            unique: false,
-            autoIncrement: true
-        },
-        char: {
-            type: DataTypes.CHAR,
-            allowNull: false
-        },
-        act: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        }
-    }
-);
-Class.hasOne(Account);
 
 const Achievement = connection.define("achievement",
     {
@@ -154,8 +167,6 @@ const AccountAchievement = connection.define("account_achievement", {
         }
     }
 });
-Account.hasMany(Achievement);
-Achievement.belongsToMany(Account, {through: AccountAchievement});
 
 const Module = connection.define("module",
     {
@@ -169,11 +180,16 @@ const Module = connection.define("module",
         name: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        charter_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Charter,
+                key: 'id'
+            }
         }
     }
 );
-Charter.hasMany(Module);
-Module.belongsTo(Charter);
 
 const Theme = connection.define("theme",
     {
@@ -187,10 +203,16 @@ const Theme = connection.define("theme",
         name: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        module_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Module,
+                key: 'id'
+            }
         }
     }
 );
-Module.hasMany(Theme);
 
 const AccountTheme = connection.define("account_theme",
     {
@@ -200,6 +222,20 @@ const AccountTheme = connection.define("account_theme",
             allowNull: false,
             unique: false,
             autoIncrement: true
+        },
+        account_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
+        },
+        theme_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Theme,
+                key: 'id'
+            }
         },
         current_count: {
             type: DataTypes.INTEGER,
@@ -211,8 +247,6 @@ const AccountTheme = connection.define("account_theme",
         }
     }
 );
-Account.hasMany(Theme);
-Theme.belongsToMany(Account, {through: AccountTheme});
 
 const AccountLvlCharter = connection.define("account_lvl_charter",
     {
@@ -221,6 +255,20 @@ const AccountLvlCharter = connection.define("account_lvl_charter",
             allowNull: false,
             defaultValue: 0
         },
+        account_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
+        },
+        charter_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Charter,
+                key: 'id'
+            }
+        },
         rank_count: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -228,7 +276,6 @@ const AccountLvlCharter = connection.define("account_lvl_charter",
         }
     }
 );
-Account.hasOne(AccountLvlCharter);
 
 const Message = connection.define("message",
     {
@@ -243,15 +290,47 @@ const Message = connection.define("message",
             type: DataTypes.STRING,
             allowNull: false,
         },
-        rank_count: {
+        count_like: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
         }
     }
 );
-Theme.hasMany(Message);
-Message.belongsToMany(Theme, {through: 'theme_message'});
+const ThemeMessage = connection.define("theme_message",
+    {
+        message_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Message,
+                key: 'id'
+            }
+        },  
+        theme_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Theme,
+                key: 'id'
+            }
+        }
+    }
+)
+
+const TypeQuestion = connection.define("type_question", 
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            unique: false,
+            autoIncrement: true
+        }, 
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        }
+    }
+);
 
 const Question = connection.define("question",
     {
@@ -270,10 +349,12 @@ const Question = connection.define("question",
             type: DataTypes.STRING,
             defaultValue: ""
         },
-        type: {
-            type: DataTypes.ENUM("choiceOne"),
-            allowNull: false,
-            defaultValue: "choiceOne"
+        type_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: TypeQuestion,
+                key: 'id'
+            }
         },
         level: {
             type: DataTypes.INTEGER,
@@ -284,37 +365,6 @@ const Question = connection.define("question",
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1
-        }
-    }
-);
-
-const ThemePostQuestion = connection.define("theme_post_question",
-    {
-        is_milestone: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        }
-    }
-);
-
-Theme.hasMany(Question);
-Question.belongsToMany(Theme, {through: ThemePostQuestion});
-
-const LikeCheck = connection.define("theme_post_question",
-    {
-        account_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Account,
-                key: 'id'
-            }
-        },
-        message_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Message,
-                key: 'id'
-            }
         }
     }
 );
@@ -342,18 +392,105 @@ const QuestionAddition = connection.define("question_addition",
     }
 );
 
+const ThemePostQuestion = connection.define("theme_post_question",
+    {
+        is_milestone: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
+        theme_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Theme,
+                key: 'id'
+            }
+        },
+        question_id: {
+            type: DataTypes.INTEGER,
+            references: {
+            model: Question,
+                key: 'id'
+            }
+        }
+    }
+);
+
+const LikeCheck = connection.define("like_check",
+    {
+        account_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
+        },
+        message_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Message,
+                key: 'id'
+            }
+        }
+    }
+);
+
+const ThemeCheckAccount = connection.define("theme_check_account", 
+    {
+        account_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
+        },
+        theme_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Theme,
+                key: 'id'
+            }
+        } 
+    }
+);
+
+const ModuleCheckAccount = connection.define("module_check_account", 
+    {
+        account_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
+        },
+        module_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Module,
+                key: 'id'
+            }
+        } 
+    }
+);
+
+
 module.exports = {
     Account,
     Role,
     Class,
-    Theme,
-    Module,
-    Charter,
-    AccountLvlCharter,
     Achievement,
-    Message,
+    Charter,
+    Module,
+    Theme,
     ThemePostQuestion,
     Question,
+    TypeQuestion,
+    QuestionAddition,
+    AccountLvlCharter,
+    AccountTheme,
+    Message,
+    ThemeMessage,
+    AccountAchievement,
     LikeCheck,
-    QuestionAddition
+    ThemeCheckAccount,
+    ModuleCheckAccount
 }
