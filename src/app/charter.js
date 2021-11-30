@@ -46,6 +46,7 @@ const setCharter = async (req) => {
   })
   return { 
     charter: {
+      id: newCharter.id,
       name: newCharter.name,
       rank_number_max: newCharter.rank_number_max,
       progress_max: newCharter.progress_max

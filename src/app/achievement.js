@@ -14,6 +14,7 @@ const getAllAchievement = async (req) => {
   
   achievements.forEach(el => {
     sendArray.push({
+      id: el.id,
       name: el.name,
       description: el.description,
       design_path: el.design_path
@@ -21,14 +22,14 @@ const getAllAchievement = async (req) => {
   });
   
 
-  return { achevements: sendArray }
+  return { achievements: sendArray }
 }
 
 const setAchievement = async (req) => {
   
   let account = await verifyToken(req);
-  let name = req.query.name;
-  let description = req.query.description;
+  let name = req.body.name;
+  let description = req.body.description;
   let image = req.files.image;
   console.log(`Account ${account.id} set achievement`);
   
@@ -60,11 +61,14 @@ const setAchievement = async (req) => {
     design_path: `/public/imageAchievements/${name}.png`
   });
 
-  return { achevement: {
-    name: newAchievement.name,
-    description: newAchievement.description,
-    design_path: newAchievement.design_path
-  }}
+  return { 
+    achevement: {
+      id: newAchievement.id,
+      name: newAchievement.name,
+      description: newAchievement.description,
+      design_path: newAchievement.design_path
+    }
+  }
 }
 
 
