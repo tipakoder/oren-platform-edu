@@ -1,4 +1,4 @@
-const { Question, ThemePostQuestion, TypeQuestion } = require("../main/db/models");
+const { Question, ThemePostQuestion, TypeQuestion, ResponseQuestion } = require("../main/db/models");
 const Sequelize = require("sequelize");
 const { verifyToken } = require("./account");
 const ApiError = require("../main/error/apiError");
@@ -62,7 +62,11 @@ const setQuestion = async (req) => {
     is_milestone
   });
 
-  
+  responses.forEach(el => {
+    await ResponseQuestion.create({
+      
+    })
+  });
 
   return { 
     question: {
