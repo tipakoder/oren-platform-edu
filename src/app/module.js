@@ -39,7 +39,7 @@ const getModulesCharter = async (req) => {
   }
 }
 
-const setModule = async(req) =>{
+const setModule = async (req) =>{
   let account = await verifyToken(req);
   let name = req.query.name;
   let charter_id = req.query.charter_id;
