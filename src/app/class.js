@@ -18,7 +18,7 @@ const getCurrentClassAct = (act) => {
 /**
  * Get count of students by class_id
  */
-const getStudentsCountByClassId = (classId) => {
+const getStudentsCountByClassId = async(classId) => {
     return await global.dbModels.Account.findAll({where: {classId}}).length;
 }
 
@@ -32,7 +32,7 @@ const getAllClass = async (req) => {
             id: el.id,
             char: el.char,
             act: getCurrentClassAct(el.act),
-            countStudents: getStudentsCountByClassId(el.id)
+            countStudents: await getStudentsCountByClassId(el.id)
         });
     });
     return { classes: sendArray }
