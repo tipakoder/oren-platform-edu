@@ -22,6 +22,7 @@ const getAllClass = async (req) => {
     let sendArray = [];
     console.log(Account)
     console.log(await Account.findAll({where: {classId: 1}}).length)
+    console.log(account)
     allClass.forEach(el => {
         sendArray.push({
             id: el.id,
