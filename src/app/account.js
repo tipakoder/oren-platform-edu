@@ -14,6 +14,21 @@ const createSession = (object) => {
 }
 
 /**
+ * Generation random password
+ * @param length
+ * @return {string}
+ */
+const generationPassword = (length = 6) => {
+    const symbols = "abcdefghijklmnopqrstuvwxyz1234567890@*&^%$#!()+_-:.<>,";
+    let password = "";
+    for(let i = 0; i < length; i++) {
+        let randSymbol = Math.floor(Math.random() * symbols.length);
+        password += symbols[randSymbol];
+    }
+    return password;
+}
+
+/**
  * Registration account by code
  * @param req
  * @return {Promise<{data: {}, type: string}>}
@@ -131,8 +146,60 @@ const verifyToken = async(req) => {
     }
 }
 
+/**
+ * Generation accounts for students
+ * @param req
+ * @return {Promise<void>}
+ */
+const generationStudents = async(req) => {
+    let adminAccount = verifyToken(req);
+
+    // If not admin
+    if(adminAccount.roleId === 1) {
+        throw ApiError.forbidden();
+    }
+
+    let listStudents = JSON.parse(req.body.listStudents);
+    let studentsInDB = [];
+    let resultStudents = [];
+    for(let student of listStudents) {
+        let nickname = /(.+)@(\w+)\.(\w+)/.exec(student.email)[1];
+        let password = generationPassword();
+
+        // In insert db
+        studentsInDB.push(
+            {
+                name: student.name,
+                surname: student.surname,
+                nickname: nickname,
+                email: student.email,
+                password: bcrypt.hashSync(password, 2),
+                roleId: 1
+            }
+        );
+
+        // In out response
+        resultStudents.push(
+            {
+                name: student.name,
+                surname: student.surname,
+                nickname: nickname,
+                email: student.email,
+                password: password
+            }
+        );
+    }
+
+    Account.bulkCreate(studentsInDB);
+
+    return {
+        students: resultStudents
+    }
+}
+
 module.exports = {
     registerByCode,
     auth,
-    verifyToken
+    verifyToken,
+    generationStudents
 }
