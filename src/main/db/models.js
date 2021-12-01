@@ -1,22 +1,6 @@
 const {DataTypes, literal} = require("sequelize");
 const connection = require("./connection");
 
-const Role = connection.define("role",
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            unique: false,
-            autoIncrement: true
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false
-        }
-    }
-);
-
 const Class = connection.define("class",
     {
         id: {
@@ -76,12 +60,10 @@ const Account = connection.define("account",
             allowNull: false,
             defaultValue: 0
         },
-        role_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Role,
-                key: 'id'
-            }
+        role: {
+            type: DataTypes.ENUM("admin", "teacher", "student"),
+            allowNull: false,
+            defaultValue: "student"
         },
         class_id: {
             type: DataTypes.INTEGER,
@@ -368,6 +350,19 @@ const Question = connection.define("question",
         }
     }
 );
+TypeQuestion.hasMany(Question, {
+    foreignKey: {
+        name: 'type_id',
+        allowNull: false,
+    }
+});
+Question.belongsTo(TypeQuestion, {
+    foreignKey: {
+        name: 'type_id',
+        allowNull: false,
+    }
+});
+
 
 const QuestionAddition = connection.define("question_addition",
     {
@@ -402,18 +397,34 @@ const ThemePostQuestion = connection.define("theme_post_question",
             type: DataTypes.INTEGER,
             references: {
                 model: Theme,
-                key: 'id'
-            }
+                key: 'id',
+            },
+            onDelete: 'CASCADE'
         },
         question_id: {
             type: DataTypes.INTEGER,
             references: {
             model: Question,
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         }
     }
 );
+Theme.hasMany(ThemePostQuestion, {
+    foreignKey: {
+        name: 'theme_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+});
+Question.hasMany(ThemePostQuestion, {
+    foreignKey: {
+        name: 'question_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+})
 
 const LikeCheck = connection.define("like_check",
     {
@@ -496,11 +507,23 @@ const ResponseQuestion = connection.define("response_question",
             }
         } 
     }
-)
+);
+
+Question.hasMany(ResponseQuestion, {
+    foreignKey: {
+        name: 'question_id',
+        allowNull: false,
+    }
+});
+ResponseQuestion.belongsTo(Question, {
+    foreignKey: {
+        name: 'question_id',
+        allowNull: false,
+    }
+});
 
 module.exports = {
     Account,
-    Role,
     Class,
     Achievement,
     Charter,

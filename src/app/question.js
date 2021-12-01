@@ -3,10 +3,122 @@ const Sequelize = require("sequelize");
 const { verifyToken } = require("./account");
 const ApiError = require("../main/error/apiError");
 
+const getQuestionsTheme = async (req) => {
+  let account = await verifyToken(req);
+  let theme_id = req.query.theme_id;
+  if(typeof theme_id === "undefined") {
+    throw new ApiError(400, `Theme id undefined`);
+  }
+
+  let allQuestion = await Question.findAll({
+    include: [
+      { 
+        model: ThemePostQuestion, 
+        where: {
+          theme_id: theme_id
+        }
+      },
+      { model: TypeQuestion, where: {} },
+      { model: ResponseQuestion, where: {} }
+    ]
+  });
+  
+  let sendArray = []
+  allQuestion.forEach(el => {
+    let themeQuestionArray = []
+    el.theme_post_questions.forEach(theme => {
+      themeQuestionArray.push({
+        theme_id: theme.theme_id,
+        question_id: theme.question_id,
+        is_milestone: theme.is_milestone
+      });
+    });
+    let responses = []
+    let currentRes = []
+    el.response_questions.forEach(response => {
+      responses.push({
+        id: response.id,
+        description: response.description
+      });
+      if(response.is_current) {
+        currentRes.push({
+          id: response.id,
+          description: response.description
+        });
+      }
+    });
+    sendArray.push({
+      name: el.name,
+      description: el.description,
+      theme_id: themeQuestionArray,
+      type: {
+        id: el.type_question.id,
+        name: el.type_question.name
+      },
+      level: el.level,
+      cost: el.cost,
+      responses: responses,
+      current_responses: currentRes
+    });
+  });
+
+  console.log(allQuestion);
+
+  return { questions: sendArray }
+}
+
 const getAllQuestion = async (req) => {
   let account = await verifyToken(req);
+  let allQuestion = await Question.findAll({
+    include: [
+      { model: ThemePostQuestion, where: {} },
+      { model: TypeQuestion, where: {} },
+      { model: ResponseQuestion, where: {} }
+    ]
+  });
+  
+  let sendArray = []
+  allQuestion.forEach(el => {
+    let themeQuestionArray = []
+    el.theme_post_questions.forEach(theme => {
+      themeQuestionArray.push({
+        theme_id: theme.theme_id,
+        question_id: theme.question_id,
+        is_milestone: theme.is_milestone
+      });
+    });
+    let responses = []
+    let currentRes = []
+    el.response_questions.forEach(response => {
+      responses.push({
+        id: response.id,
+        description: response.description
+      });
+      if(response.is_current) {
+        currentRes.push({
+          id: response.id,
+          description: response.description
+        });
+      }
+    });
+    sendArray.push({
+      name: el.name,
+      description: el.description,
+      theme_id: themeQuestionArray,
+      type: {
+        id: el.type_question.id,
+        name: el.type_question.name
+      },
+      level: el.level,
+      cost: el.cost,
+      responses: responses,
+      current_responses: currentRes
+    });
+  });
 
-  return { questions: [] }
+  console.log(allQuestion);
+
+  return { questions: sendArray }
 }
 
 const setQuestion = async (req) => {
@@ -72,22 +184,27 @@ const setQuestion = async (req) => {
 
   let sendArrayResponses = []
   let sendCurrentResponses = []
-  responses.forEach(el => {
-    let responseQuestion = ResponseQuestion.create({
-      description: el.description,
-      is_current: el.isTrue
+
+  for (let i = 0; i < responses.length; i++) {
+    const element = responses[i];
+    let responseQuestion = await ResponseQuestion.create({
+      description: element.description,
+      is_current: element.isTrue,
+      question_id: newQuestion.id
     });
-    sendArrayResponses.push({
-      id: responseQuestion.id,
-      description: responseQuestion.description
-    });
-    if(el.isTrue) {
-      sendCurrentResponses.push({
-        id: responseQuestion.id,
-        description: responseQuestion.description
+    if(responseQuestion) {
+      sendArrayResponses.push({
+        description: responseQuestion.description,
+        question_id: responseQuestion.question_id
       });
+      if(responseQuestion.is_current) {
+        sendCurrentResponses.push({
+          description: responseQuestion.description,
+          question_id: responseQuestion.question_id
+        });
+      }
     }
-  });
+  }
 
   return { 
     question: {
@@ -100,12 +217,13 @@ const setQuestion = async (req) => {
       level: newQuestion.level,
       cost: newQuestion.cost,
       responses: sendArrayResponses,
-      current_res: sendCurrentResponses > 1 ? sendCurrentResponses : sendCurrentResponses[0] 
+      current_res: sendCurrentResponses > 1 ? sendCurrentResponses : sendCurrentResponses === 0 ? "" : sendCurrentResponses[0]
     } 
   }
 }
 
 module.exports = {
   getAllQuestion,
-  setQuestion
+  setQuestion,
+  getQuestionsTheme
 }

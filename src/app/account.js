@@ -78,7 +78,6 @@ const registerByCode = async(req) => {
             nickname,
             email,
             password,
-            roleId: 3
         }
     );
 
@@ -155,7 +154,7 @@ const generationStudents = async(req) => {
     let adminAccount = verifyToken(req);
 
     // If not admin
-    if(adminAccount.roleId === 1) {
+    if(adminAccount.role === "admin") {
         throw ApiError.forbidden();
     }
 
@@ -174,7 +173,6 @@ const generationStudents = async(req) => {
                 nickname: nickname,
                 email: student.email,
                 password: bcrypt.hashSync(password, 2),
-                roleId: 1
             }
         );
 
