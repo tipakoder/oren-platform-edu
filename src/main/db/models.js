@@ -298,22 +298,6 @@ const ThemeMessage = connection.define("theme_message",
     }
 )
 
-const TypeQuestion = connection.define("type_question", 
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            unique: false,
-            autoIncrement: true
-        }, 
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        }
-    }
-);
-
 const Question = connection.define("question",
     {
         id: {
@@ -332,11 +316,9 @@ const Question = connection.define("question",
             defaultValue: ""
         },
         type_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: TypeQuestion,
-                key: 'id'
-            }
+            type: DataTypes.ENUM("oneCurrent", "twoCurrent"),
+            allowNull: false,
+            defaultValue: "oneCurrent"
         },
         level: {
             type: DataTypes.INTEGER,
@@ -350,19 +332,6 @@ const Question = connection.define("question",
         }
     }
 );
-TypeQuestion.hasMany(Question, {
-    foreignKey: {
-        name: 'type_id',
-        allowNull: false,
-    }
-});
-Question.belongsTo(TypeQuestion, {
-    foreignKey: {
-        name: 'type_id',
-        allowNull: false,
-    }
-});
-
 
 const QuestionAddition = connection.define("question_addition",
     {
