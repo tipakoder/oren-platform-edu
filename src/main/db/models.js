@@ -500,7 +500,6 @@ module.exports = {
     Theme,
     ThemePostQuestion,
     Question,
-    TypeQuestion,
     QuestionAddition,
     AccountLvlCharter,
     AccountTheme,
