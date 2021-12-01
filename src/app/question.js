@@ -1,4 +1,4 @@
-const { Question, ThemePostQuestion, TypeQuestion, ResponseQuestion, Theme } = require("../main/db/models");
+const { Question, ThemePostQuestion, ResponseQuestion, Theme } = require("../main/db/models");
 const Sequelize = require("sequelize");
 const { verifyToken } = require("./account");
 const ApiError = require("../main/error/apiError");
@@ -18,7 +18,6 @@ const getQuestionsTheme = async (req) => {
           theme_id: theme_id
         }
       },
-      { model: TypeQuestion, where: {} },
       { model: ResponseQuestion, where: {} }
     ]
   });
@@ -51,10 +50,7 @@ const getQuestionsTheme = async (req) => {
       name: el.name,
       description: el.description,
       theme_id: themeQuestionArray,
-      type: {
-        id: el.type_question.id,
-        name: el.type_question.name
-      },
+      type: el.type,
       level: el.level,
       cost: el.cost,
       responses: responses,
@@ -72,7 +68,6 @@ const getAllQuestion = async (req) => {
   let allQuestion = await Question.findAll({
     include: [
       { model: ThemePostQuestion, where: {} },
-      { model: TypeQuestion, where: {} },
       { model: ResponseQuestion, where: {} }
     ]
   });
@@ -105,10 +100,7 @@ const getAllQuestion = async (req) => {
       name: el.name,
       description: el.description,
       theme_id: themeQuestionArray,
-      type: {
-        id: el.type_question.id,
-        name: el.type_question.name
-      },
+      type: el.type,
       level: el.level,
       cost: el.cost,
       responses: responses,
@@ -205,10 +197,7 @@ const setQuestion = async (req) => {
     question: {
       id: newQuestion.id,
       description: newQuestion.description,
-      type: {
-        id: type.id,
-        name: type.name
-      },
+      type: newQuestion.type,
       level: newQuestion.level,
       cost: newQuestion.cost,
       responses: sendArrayResponses,
