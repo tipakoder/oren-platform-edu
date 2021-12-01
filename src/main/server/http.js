@@ -3,6 +3,7 @@ const os = require("os");
 const path = require("path");
 const cors = require("cors");
 const colors = require("colors");
+const morgan = require('morgan');
 const express = require("express");
 const Response = require("./response");
 const bodyParser = require("body-parser");
@@ -25,6 +26,7 @@ class HttpServer {
         this.#app = express();
 
         this.#app.use(cors());
+        this.#app.use(morgan("dev"));
         this.#app.use(bodyParser.json())
         this.#app.use(bodyParser.urlencoded({ extended: true }));
 
