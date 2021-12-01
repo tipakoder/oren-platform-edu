@@ -1,6 +1,6 @@
 const { Theme } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
-const { verifyToken } = require("./account")
+const { verifyToken } = require("./account");
 
 const getAllTheme = async (req) => {
   let account = await verifyToken(req);
@@ -59,9 +59,11 @@ const setTheme = async (req) => {
   });
 
   return {
-    id: newTheme.id,
-    name: newTheme.name,
-    module_id: newTheme.moduleId
+    theme: {
+      id: newTheme.id,
+      name: newTheme.name,
+      module_id: newTheme.moduleId
+    }
   }
 }
 
