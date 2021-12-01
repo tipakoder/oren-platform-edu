@@ -315,7 +315,7 @@ const Question = connection.define("question",
             type: DataTypes.STRING,
             defaultValue: ""
         },
-        type_id: {
+        type: {
             type: DataTypes.ENUM("oneCurrent", "twoCurrent"),
             allowNull: false,
             defaultValue: "oneCurrent"
