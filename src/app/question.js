@@ -128,7 +128,7 @@ const setQuestion = async (req) => {
   let is_milestone = req.body.is_milestone;
   let name = req.body.name;
   let description = req.body.description;
-  let type_id = req.body.type_id;
+  let type = req.body.type;
   let level = req.body.level;
   let cost = req.body.cost;
   let responses = JSON.parse(req.body.responses);
@@ -145,8 +145,8 @@ const setQuestion = async (req) => {
   if(typeof description === "undefined") {
     throw new ApiError(400, `Description undefined`);
   }
-  if(typeof type_id === "undefined") {
-    throw new ApiError(400, `Type id undefined`);
+  if(typeof type === "undefined") {
+    throw new ApiError(400, `Type undefined`);
   }
   if(typeof level === "undefined") {
     throw new ApiError(400, `Level undefined`);
@@ -162,16 +162,11 @@ const setQuestion = async (req) => {
   if(!themeCheck) {
     throw new ApiError(500, `The theme is not found`);
   }
-  
-  let type = await TypeQuestion.findOne({ where: { id: type_id } });
-  if(!type) {
-    throw new ApiError(500, `The type is not found`);
-  }
 
   let newQuestion = await Question.create({
     name,
     description,
-    type_id,
+    type,
     level,
     cost
   });
