@@ -1,4 +1,4 @@
-const { Question, ThemePostQuestion, TypeQuestion, ResponseQuestion } = require("../main/db/models");
+const { Question, ThemePostQuestion, TypeQuestion, ResponseQuestion, Theme } = require("../main/db/models");
 const Sequelize = require("sequelize");
 const { verifyToken } = require("./account");
 const ApiError = require("../main/error/apiError");
@@ -12,14 +12,14 @@ const getAllQuestion = async (req) => {
 const setQuestion = async (req) => {
   let account = await verifyToken(req);
 
-  let theme_id = req.query.theme_id;
-  let is_milestone = req.query.is_milestone;
-  let name = req.query.name;
-  let description = req.query.description;
-  let type_id = req.query.type_id;
-  let level = req.query.level;
-  let cost = req.query.cost;
-  let responses = req.query.responses;
+  let theme_id = req.body.theme_id;
+  let is_milestone = req.body.is_milestone;
+  let name = req.body.name;
+  let description = req.body.description;
+  let type_id = req.body.type_id;
+  let level = req.body.level;
+  let cost = req.body.cost;
+  let responses = JSON.parse(req.body.responses);
   
   if(typeof theme_id === "undefined") {
     throw new ApiError(400, `Theme id undefined`);
@@ -46,6 +46,16 @@ const setQuestion = async (req) => {
     throw new ApiError(400, `Responses undefined`);
   }
 
+  let themeCheck = await Theme.findOne({ where: { id: theme_id }});
+  if(!themeCheck) {
+    throw new ApiError(500, `The theme is not found`);
+  }
+  
+  let type = await TypeQuestion.findOne({ where: { id: type_id } });
+  if(!type) {
+    throw new ApiError(500, `The type is not found`);
+  }
+
   let newQuestion = await Question.create({
     name,
     description,
@@ -54,18 +64,29 @@ const setQuestion = async (req) => {
     cost
   });
 
-  let type = await TypeQuestion.findOne({ where: { id: type_id } });
-
   await ThemePostQuestion.create({
     theme_id,
     question_id: newQuestion.id,
     is_milestone
   });
 
+  let sendArrayResponses = []
+  let sendCurrentResponses = []
   responses.forEach(el => {
-    await ResponseQuestion.create({
-      
-    })
+    let responseQuestion = ResponseQuestion.create({
+      description: el.description,
+      is_current: el.isTrue
+    });
+    sendArrayResponses.push({
+      id: responseQuestion.id,
+      description: responseQuestion.description
+    });
+    if(el.isTrue) {
+      sendCurrentResponses.push({
+        id: responseQuestion.id,
+        description: responseQuestion.description
+      });
+    }
   });
 
   return { 
@@ -77,7 +98,9 @@ const setQuestion = async (req) => {
         name: type.name
       },
       level: newQuestion.level,
-      cost: newQuestion.cost
+      cost: newQuestion.cost,
+      responses: sendArrayResponses,
+      current_res: sendCurrentResponses > 1 ? sendCurrentResponses : sendCurrentResponses[0] 
     } 
   }
 }

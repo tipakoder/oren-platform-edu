@@ -10,7 +10,7 @@ const getAllTheme = async (req) => {
     sendArray.push({
       id: el.id,
       name: el.name,
-      module_id: el.moduleId
+      module_id: el.module_id
     });
   });
 
@@ -31,7 +31,7 @@ const getThemesModule = async (req) => {
     sendArray.push({
       id: el.id,
       name: el.name,
-      module_id: el.moduleId
+      module_id: el.module_id
     });
   });
 
@@ -55,14 +55,14 @@ const setTheme = async (req) => {
 
   let newTheme = await Theme.create({
     name: name,
-    moduleId: module_id
+    module_id: module_id
   });
 
   return {
     theme: {
       id: newTheme.id,
       name: newTheme.name,
-      module_id: newTheme.moduleId
+      module_id: newTheme.module_id
     }
   }
 }

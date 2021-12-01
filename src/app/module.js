@@ -53,13 +53,13 @@ const setModule = async (req) =>{
 
   let newModule = await Module.create({
     name: name,
-    charterId: charter_id
+    charter_id: charter_id
   });
   return {
     module: {
       id: newModule.id,
       name: newModule.name,
-      charter_id: newModule.charterId
+      charter_id: newModule.charter_id
     }
   }
 }
