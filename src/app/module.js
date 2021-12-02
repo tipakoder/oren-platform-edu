@@ -64,18 +64,49 @@ const setModule = async (req) =>{
   }
 }
 
-const getModulesAccount = (req) => {
+const getModulesAccount = async (req) => {
   let account = await verifyToken(req);
   let accountModules = await ModuleCheckAccount.findAll({
     where: {
       account_id: account.id
     }
   });
-  return { modules: accountModules } 
+  let sendArray = [];
+  accountModules.forEach(el => {
+    sendArray.push({
+      module_id: el.module_id
+    });
+  });
+  return { modules: sendArray } 
+}
+
+const setAccessModule = async (req) => {
+  let account = await verifyToken(req);
+  let module_id = req.query.module_id;
+  let account_id = req.query.account_id;
+  
+  if(account.role !== "admin") {
+    throw new ApiError(288,`Not enough rights`);
+  } 
+  if(typeof module_id === "undefined") {
+    throw new ApiError(400, `Module id undefined`);
+  }
+  if(typeof account_id === "undefined") {
+    throw new ApiError(400, `Account id undefined`);
+  }
+
+  let conModule = await ModuleCheckAccount.create({
+    module_id: module_id,
+    account_id: account_id
+  });
+
+  return { connectModule: conModule }
 }
 
 module.exports = {
   getAllModule,
   getModulesCharter,
-  setModule
+  setModule,
+  getModulesAccount,
+  setAccessModule
 }
