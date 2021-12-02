@@ -47,7 +47,7 @@ const getThemesModule = async (req) => {
     throw new ApiError(400, `Module id undefined`);
   }
 
-  let themes = await Theme.findAll({ where: { moduleId: module_id } });
+  let themes = await Theme.findAll({ where: { module_id: module_id } });
   let sendArray = []
   themes.forEach(el => {
     sendArray.push({
