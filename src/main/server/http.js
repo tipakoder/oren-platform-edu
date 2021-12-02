@@ -44,7 +44,7 @@ class HttpServer {
         global.publicDirectory = path.join(global.rootDirectoryStart, "public");
 
         if(!fs.existsSync(global.publicDirectory))
-            fs.mkdir(global.publicDirectory);
+            fs.mkdirSync(global.publicDirectory);
 
         this.#app.use("/public", express.static(global.publicDirectory));
 
