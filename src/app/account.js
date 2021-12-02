@@ -78,6 +78,7 @@ const registerByCode = async(req) => {
             nickname,
             email,
             password,
+            role: "admin"
         }
     );
 
