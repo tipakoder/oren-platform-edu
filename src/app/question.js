@@ -28,14 +28,21 @@ const getQuestionsTheme = async (req) => {
   });
   
   let sendArray = []
-  allQuestion.forEach(el => {
+  for (let i = 0; i < allQuestion.length; i++) {
+    const el = allQuestion[i];
     let themeQuestionArray = []
-    el.theme_post_questions.forEach(theme => {
+    let themePostQuestions = await ThemePostQuestion.findAll({
+      where: {
+        question_id: el.id 
+      }
+    });
+    themePostQuestions.forEach(theme => {
       themeQuestionArray.push({
         theme_id: theme.theme_id,
         is_milestone: theme.is_milestone
       });
     });
+
     let responses = []
     let currentRes = []
     let imgUrl = []
@@ -60,7 +67,7 @@ const getQuestionsTheme = async (req) => {
       id: el.id,
       name: el.name,
       description: el.description,
-      theme_id: themeQuestionArray,
+      theme_ids: themeQuestionArray.length > 0 ? themeQuestionArray : null,
       type: el.type,
       level: el.level,
       cost: el.cost,
@@ -70,9 +77,15 @@ const getQuestionsTheme = async (req) => {
       responses: responses,
       current_responses: currentRes
     });
+  }
+  allQuestion.forEach(el => {
+    
   });
 
-  return { questions: sendArray }
+  return { 
+    theme_id: theme_id,
+    questions: sendArray 
+  }
 }
 
 const getAllQuestion = async (req) => {
@@ -119,7 +132,7 @@ const getAllQuestion = async (req) => {
       id: el.id,
       name: el.name,
       description: el.description,
-      theme_id: themeQuestionArray,
+      theme_ids: themeQuestionArray.length > 0 ? themeQuestionArray : null,
       type: el.type,
       level: el.level,
       cost: el.cost,
@@ -131,7 +144,9 @@ const getAllQuestion = async (req) => {
     });
   });
 
-  return { questions: sendArray }
+  return {
+    questions: sendArray 
+  }
 }
 
 const setQuestion = async (req) => {
