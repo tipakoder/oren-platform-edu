@@ -135,7 +135,7 @@ const setAccessTheme = async (req) => {
     account_id: account_id
   });
 
-  return { connectModule: conModule }
+  return { connectTheme: conModule }
 }
 
 module.exports = {
