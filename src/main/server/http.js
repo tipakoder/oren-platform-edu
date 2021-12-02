@@ -42,6 +42,10 @@ class HttpServer {
         this.#app.use(expressFormData.union());
 
         global.publicDirectory = path.join(global.rootDirectoryStart, "public");
+
+        if(!fs.existsSync(global.publicDirectory))
+            fs.mkdir(global.publicDirectory);
+
         this.#app.use("/public", express.static(global.publicDirectory));
 
         this.#app.use("/:module/:action", async(req, res, next) => {
