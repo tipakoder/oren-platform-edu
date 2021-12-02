@@ -71,7 +71,6 @@ const getModulesAccount = (req) => {
       account_id: account.id
     }
   });
-  let 
   return { modules: accountModules } 
 }
 
