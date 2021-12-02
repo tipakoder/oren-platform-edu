@@ -4,7 +4,29 @@ const { verifyToken } = require("./account");
 
 const getAllModule = async (req) => {
   let account = await verifyToken(req);
-  let modules = await Module.findAll();
+  let check_account = req.query.check_account;
+  
+  let modules = null
+  if(typeof check_account !== "undefined" && check_account) {
+    let checked = await ModuleCheckAccount.findAll({
+      where: {
+        account_id: account.id
+      }
+    });
+    let whereArray = [];
+    checked.forEach(el => {
+      whereArray.push(el.module_id);
+    })
+    modules = await Module.findAll({ 
+      where: {
+        id: whereArray
+      }
+    });
+  }
+  else {
+    modules = await Module.findAll();
+  }
+
   let sendArray = [];
   modules.forEach(el => {
     sendArray.push({
@@ -95,13 +117,13 @@ const setAccessModule = async (req) => {
     throw new ApiError(400, `Account id undefined`);
   }
 
-  if(!(await Module.findOne({ where: { id: theme_id } }))) {
+  if(!(await Module.findOne({ where: { id: module_id } }))) {
     throw new ApiError(500, `The module is not found`);
   }
   if(!(await Account.findOne({ where: { id: account_id } }))) {
     throw new ApiError(500, `The account is not found`);
   }
-  if((await ModuleCheckAccount.findOne({ where: { account_id, theme_id }}))) {
+  if((await ModuleCheckAccount.findOne({ where: { account_id, module_id }}))) {
     throw new ApiError(409, `Such a connection already exists`);
   }
 

@@ -4,7 +4,29 @@ const { verifyToken } = require("./account");
 
 const getAllTheme = async (req) => {
   let account = await verifyToken(req);
-  let themes = await Theme.findAll();
+  let check_account = req.query.check_account;
+  
+  let themes = null
+  if(typeof check_account !== "undefined" && check_account) {
+    let checked = await ThemeCheckAccount.findAll({
+      where: {
+        account_id: account.id
+      }
+    });
+    let whereArray = [];
+    checked.forEach(el => {
+      whereArray.push(el.theme_id)
+    })
+    themes = await Theme.findAll({ 
+      where: {
+        id: whereArray
+      }
+    });
+  }
+  else {
+    themes = await Theme.findAll();
+  }
+
   let sendArray = []
   themes.forEach(el => {
     sendArray.push({
@@ -97,7 +119,7 @@ const setAccessTheme = async (req) => {
   if(typeof account_id === "undefined") {
     throw new ApiError(400, `Account id undefined`);
   }
-  
+
   if(!(await Theme.findOne({ where: { id: theme_id } }))) {
     throw new ApiError(500, `The theme is not found`);
   }
