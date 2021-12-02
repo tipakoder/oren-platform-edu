@@ -41,12 +41,34 @@ const getAllModule = async (req) => {
 const getModulesCharter = async (req) => {
   let charter_id = req.query.charter_id;
   let account = await verifyToken(req);
+  let check_account = req.query.check_account;
   
   if(typeof charter_id === "undefined") {
     throw new ApiError(400, `Charter id undefined`);
   }
 
-  let modules = await Module.findAll({ where: { charter_id: charter_id }});
+  let modules = null
+  if(typeof check_account !== "undefined" && check_account) {
+    let checked = await ModuleCheckAccount.findAll({
+      where: {
+        account_id: account.id
+      }
+    });
+    let whereArray = [];
+    checked.forEach(el => {
+      whereArray.push(el.module_id);
+    })
+    modules = await Module.findAll({ 
+      where: {
+        id: whereArray,
+        charter_id: charter_id
+      }
+    });
+  }
+  else {
+    modules = await Module.findAll({ where: { charter_id: charter_id }});
+  }
+
   let sendArray = [];
 
   modules.forEach(el => {
