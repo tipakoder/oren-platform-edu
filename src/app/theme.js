@@ -1,4 +1,4 @@
-const { Theme } = require("../main/db/models");
+const { Theme, ThemeCheckAccount, Account } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
@@ -67,8 +67,59 @@ const setTheme = async (req) => {
   }
 }
 
+const getThemesAccount = async (req) => {
+  let account = await verifyToken(req);
+  let accountThemes = await ThemeCheckAccount.findAll({
+    where: {
+      account_id: account.id
+    }
+  });
+  let sendArray = [];
+  accountThemes.forEach(el => {
+    sendArray.push({
+      theme_id: el.theme_id
+    });
+  });
+  return { themes: sendArray } 
+}
+
+const setAccessTheme = async (req) => {
+  let account = await verifyToken(req);
+  let theme_id = req.query.theme_id;
+  let account_id = req.query.account_id;
+  
+  if(account.role !== "admin") {
+    throw new ApiError(288,`Not enough rights`);
+  } 
+  if(typeof theme_id === "undefined") {
+    throw new ApiError(400, `Theme id undefined`);
+  }
+  if(typeof account_id === "undefined") {
+    throw new ApiError(400, `Account id undefined`);
+  }
+  
+  if(!(await Theme.findOne({ where: { id: theme_id } }))) {
+    throw new ApiError(500, `The theme is not found`);
+  }
+  if(!(await Account.findOne({ where: { id: account_id } }))) {
+    throw new ApiError(500, `The account is not found`);
+  }
+  if((await ThemeCheckAccount.findOne({ where: { account_id, theme_id }}))) {
+    throw new ApiError(409, `Such a connection already exists`);
+  }
+
+  let conModule = await ThemeCheckAccount.create({
+    theme_id: theme_id,
+    account_id: account_id
+  });
+
+  return { connectModule: conModule }
+}
+
 module.exports = {
   getAllTheme,
   getThemesModule,
-  setTheme
+  setTheme,
+  getThemesAccount,
+  setAccessTheme
 }

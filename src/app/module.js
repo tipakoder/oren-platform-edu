@@ -95,6 +95,16 @@ const setAccessModule = async (req) => {
     throw new ApiError(400, `Account id undefined`);
   }
 
+  if(!(await Module.findOne({ where: { id: theme_id } }))) {
+    throw new ApiError(500, `The module is not found`);
+  }
+  if(!(await Account.findOne({ where: { id: account_id } }))) {
+    throw new ApiError(500, `The account is not found`);
+  }
+  if((await ModuleCheckAccount.findOne({ where: { account_id, theme_id }}))) {
+    throw new ApiError(409, `Such a connection already exists`);
+  }
+
   let conModule = await ModuleCheckAccount.create({
     module_id: module_id,
     account_id: account_id
