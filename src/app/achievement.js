@@ -48,13 +48,13 @@ const setAchievement = async (req) => {
   if(!data) {
     throw new ApiError(83, `No data read image file`);
   }
-
-  fs.writeFile(`${resolve(__dirname, "../../")}/public/imageAchievements/${name}.png`, data, {}, (e) => {
-    if(e) {
-      throw new ApiError(83, `Error write image file`);
-    }
+  fs.promises.mkdir(`${resolve(__dirname, "../../")}/public/imageAchievements`, { recursive: true }).then(file => {
+    fs.writeFile(`${resolve(__dirname, "../../")}/public/imageAchievements/${name}.png`, data, {}, (e) => {
+      if(e) {
+        throw new ApiError(83, `Error write image file`);
+      }
+    });
   });
-
   let newAchievement = await Achievement.create({
     name: name,
     description: description,

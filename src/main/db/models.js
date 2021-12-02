@@ -355,6 +355,13 @@ const QuestionAddition = connection.define("question_addition",
         }
     }
 );
+Question.hasMany(QuestionAddition, {
+    foreignKey: {
+        name: 'question_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+})
 
 const ThemePostQuestion = connection.define("theme_post_question",
     {
