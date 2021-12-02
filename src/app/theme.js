@@ -42,12 +42,34 @@ const getAllTheme = async (req) => {
 const getThemesModule = async (req) => {
   let account = await verifyToken(req);
   let module_id = req.query.module_id;
+  let check_account = req.query.check_account;
 
   if(typeof module_id === "undefined") {
     throw new ApiError(400, `Module id undefined`);
   }
 
-  let themes = await Theme.findAll({ where: { module_id: module_id } });
+  let themes = null
+  if(typeof check_account !== "undefined" && check_account) {
+    let checked = await ThemeCheckAccount.findAll({
+      where: {
+        account_id: account.id,
+      }
+    });
+    let whereArray = [];
+    checked.forEach(el => {
+      whereArray.push(el.theme_id)
+    })
+    themes = await Theme.findAll({ 
+      where: {
+        id: whereArray,
+        module_id: module_id
+      }
+    });
+  }
+  else {
+    themes = await Theme.findAll({ where: { module_id: module_id } });
+  }
+
   let sendArray = []
   themes.forEach(el => {
     sendArray.push({
