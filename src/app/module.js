@@ -1,4 +1,4 @@
-const { Module, Account } = require("../main/db/models");
+const { Module, Account, ModuleCheckAccount } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
@@ -24,7 +24,7 @@ const getModulesCharter = async (req) => {
     throw new ApiError(400, `Charter id undefined`);
   }
 
-  let modules = await Module.findAll({ where: { charterId: charter_id }});
+  let modules = await Module.findAll({ where: { charter_id: charter_id }});
   let sendArray = [];
 
   modules.forEach(el => {
@@ -62,6 +62,17 @@ const setModule = async (req) =>{
       charter_id: newModule.charter_id
     }
   }
+}
+
+const getModulesAccount = (req) => {
+  let account = await verifyToken(req);
+  let accountModules = await ModuleCheckAccount.findAll({
+    where: {
+      account_id: account.id
+    }
+  });
+  let 
+  return { modules: accountModules } 
 }
 
 module.exports = {
