@@ -44,7 +44,6 @@ const getQuestionsTheme = async (req) => {
     });
 
     let responses = []
-    let currentRes = []
     let imgUrl = []
     if(el.question_additions.length > 0) {
       el.question_additions.forEach(el => {
@@ -56,12 +55,6 @@ const getQuestionsTheme = async (req) => {
         id: response.id,
         description: response.description
       });
-      if(response.is_current) {
-        currentRes.push({
-          id: response.id,
-          description: response.description
-        });
-      }
     });
     sendArray.push({
       id: el.id,
@@ -74,8 +67,7 @@ const getQuestionsTheme = async (req) => {
       question_addition: {
         images_url: imgUrl.length > 0 ? imgUrl : null
       },
-      responses: responses,
-      current_responses: currentRes
+      responses: responses
     });
   }
   allQuestion.forEach(el => {
@@ -109,7 +101,6 @@ const getAllQuestion = async (req) => {
       });
     });
     let responses = []
-    let currentRes = []
     let imgUrl = []
     if(el.question_additions.length > 0) {
       el.question_additions.forEach(el => {
@@ -121,12 +112,6 @@ const getAllQuestion = async (req) => {
         id: response.id,
         description: response.description
       });
-      if(response.is_current) {
-        currentRes.push({
-          id: response.id,
-          description: response.description
-        });
-      }
     });
     sendArray.push({
       id: el.id,
@@ -139,8 +124,7 @@ const getAllQuestion = async (req) => {
       question_addition: {
         images_url: imgUrl.length > 0 ? imgUrl : null
       },
-      responses: responses,
-      current_responses: currentRes
+      responses: responses
     });
   });
 
@@ -252,7 +236,6 @@ const setQuestion = async (req) => {
   });
 
   let sendArrayResponses = []
-  let sendCurrentResponses = []
 
   for (let i = 0; i < responses.length; i++) {
     const element = responses[i];
@@ -266,12 +249,6 @@ const setQuestion = async (req) => {
         id: responseQuestion.id,
         description: responseQuestion.description
       });
-      if(responseQuestion.is_current) {
-        sendCurrentResponses.push({
-          id: responseQuestion.id,
-          description: responseQuestion.description
-        });
-      }
     }
   }
 
@@ -286,8 +263,7 @@ const setQuestion = async (req) => {
       question_addition: {
         images_url: checkImg ? imagesDB : null
       },
-      responses: sendArrayResponses,
-      current_res: sendCurrentResponses > 1 ? sendCurrentResponses : sendCurrentResponses === 0 ? "" : sendCurrentResponses[0]
+      responses: sendArrayResponses
     } 
   }
 }
