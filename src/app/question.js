@@ -5,6 +5,7 @@ const ApiError = require("../main/error/apiError");
 const fs = require("fs");
 const { resolve } = require("path");
 
+
 const getQuestionsTheme = async (req) => {
   let account = await verifyToken(req);
   let theme_id = req.query.theme_id;
@@ -81,7 +82,9 @@ const getQuestionsTheme = async (req) => {
 }
 
 const getAllQuestion = async (req) => {
+
   let account = await verifyToken(req);
+
   let allQuestion = await Question.findAll({
     where: {},
     include: [
@@ -93,6 +96,8 @@ const getAllQuestion = async (req) => {
   
   let sendArray = []
   allQuestion.forEach(el => {
+    
+    // theme array
     let themeQuestionArray = []
     el.theme_post_questions.forEach(theme => {
       themeQuestionArray.push({
@@ -100,19 +105,25 @@ const getAllQuestion = async (req) => {
         is_milestone: theme.is_milestone
       });
     });
+
+    // responses array
     let responses = []
-    let imgUrl = []
-    if(el.question_additions.length > 0) {
-      el.question_additions.forEach(el => {
-        imgUrl.push(el.media_path);
-      });
-    }
     el.response_questions.forEach(response => {
       responses.push({
         id: response.id,
         description: response.description
       });
     });
+    
+    // images url array
+    let imgUrl = []
+    if(el.question_additions.length > 0) {
+      el.question_additions.forEach(el => {
+        imgUrl.push(el.media_path);
+      });
+    }
+
+
     sendArray.push({
       id: el.id,
       name: el.name,
@@ -134,10 +145,10 @@ const getAllQuestion = async (req) => {
 }
 
 const setQuestion = async (req) => {
+
   let account = await verifyToken(req);
 
   let theme_ids = JSON.parse(req.body.theme_ids);
-  let is_milestone = req.body.is_milestone;
   let name = req.body.name;
   let description = req.body.description;
   let type = req.body.type;
@@ -148,9 +159,6 @@ const setQuestion = async (req) => {
   
   if(typeof theme_ids === "undefined") {
     throw new ApiError(400, `Theme id undefined`);
-  }
-  if(typeof is_milestone === "undefined") {
-    throw new ApiError(400, `Is milestone undefined`);
   }
   if(typeof name === "undefined") {
     throw new ApiError(400, `Name undefined`);
@@ -170,6 +178,7 @@ const setQuestion = async (req) => {
   if(typeof responses === "undefined") {
     throw new ApiError(400, `Responses undefined`);
   }
+
   let checkImg = false;
   if(typeof images !== "undefined") {
     console.log(images.length);
@@ -235,13 +244,13 @@ const setQuestion = async (req) => {
     });
   });
 
-  let sendArrayResponses = []
 
+  let sendArrayResponses = []
   for (let i = 0; i < responses.length; i++) {
     const element = responses[i];
     let responseQuestion = await ResponseQuestion.create({
       description: element.description,
-      is_current: element.isTrue,
+      is_current: element.is_current,
       question_id: newQuestion.id
     });
     if(responseQuestion) {

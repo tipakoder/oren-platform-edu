@@ -16,8 +16,13 @@ const getCurrentClassAct = (act) => {
 }
 
 const getAllClass = async (req) => {
+
     const account = await verifyToken(req);
+
+
     console.log(`Account ${account.id} get all class`);
+
+
     let allClass = await Class.findAll();
     let sendArray = [];
     allClass.forEach(el => {
@@ -28,32 +33,48 @@ const getAllClass = async (req) => {
             //countStudents: await Account.findAll({where: {classId: el.id}}).length
         });
     });
-    return { classes: sendArray }
+    
+    return { 
+      classes: sendArray 
+    }
 }
 
 const setClass = async (req) => {
+
+  const account = await verifyToken(req);
+  if(account.role !== "admin") {
+    throw new ApiError(403, `You are not eligible for this action`);
+  }
+
+  
+  let act = req.query.act;
   let char = req.query.char;
+
   if(typeof char === "undefined") {
     throw new ApiError(400, `Char value undefined`);
   }
   else if (char.length > 1) {
     throw new ApiError(400, `More than 1 character`);
   }
-  let act = req.query.act;
   if(typeof act === "undefined") {
     throw new ApiError(400, `Act value undefined`);
   }
+  
   if(
     await Class.findOne({ where: {char, act}})
   ) {
     throw new ApiError(400, `Class already exists!`)
   }
-  const account = await verifyToken(req);
+
+
   console.log((new Date(Date.now())), `: Account ${account.id} set class`);
+
+
   let newClass = await Class.create({
     char: char,
     act: act
   });
+ 
   return {
     class: {
       id: newClass.id,

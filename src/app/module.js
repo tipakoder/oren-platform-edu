@@ -2,13 +2,10 @@ const { Module, Account, ModuleCheckAccount } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
-const getAllModule = async (req) => {
-  let account = await verifyToken(req);
-  let check_account = req.query.check_account;
-  
-  let modules = null
+export const checkAccount = async (check_account, base, checkBase) => {
+  let docs = null
   if(typeof check_account !== "undefined" && check_account) {
-    let checked = await ModuleCheckAccount.findAll({
+    let checked = await checkBase.findAll({
       where: {
         account_id: account.id
       }
@@ -17,15 +14,25 @@ const getAllModule = async (req) => {
     checked.forEach(el => {
       whereArray.push(el.module_id);
     })
-    modules = await Module.findAll({ 
+    docs = await base.findAll({ 
       where: {
         id: whereArray
       }
     });
   }
   else {
-    modules = await Module.findAll();
+    docs = await base.findAll();
   }
+  
+  return docs;
+}
+
+const getAllModule = async (req) => {
+
+  let account = await verifyToken(req);
+
+  let check_account = req.query.check_account;
+  let modules = await checkAccount(check_account, Module, ModuleCheckAccount);
 
   let sendArray = [];
   modules.forEach(el => {
@@ -35,48 +42,32 @@ const getAllModule = async (req) => {
       charter_id: el.charter_id
     });
   });
-  return { modules: sendArray }
+  return { 
+    modules: sendArray 
+  }
 }
 
 const getModulesCharter = async (req) => {
-  let charter_id = req.query.charter_id;
+  
   let account = await verifyToken(req);
+  
+  let charter_id = req.query.charter_id;
   let check_account = req.query.check_account;
   
   if(typeof charter_id === "undefined") {
     throw new ApiError(400, `Charter id undefined`);
   }
 
-  let modules = null
-  if(typeof check_account !== "undefined" && check_account) {
-    let checked = await ModuleCheckAccount.findAll({
-      where: {
-        account_id: account.id
-      }
-    });
-    let whereArray = [];
-    checked.forEach(el => {
-      whereArray.push(el.module_id);
-    })
-    modules = await Module.findAll({ 
-      where: {
-        id: whereArray,
-        charter_id: charter_id
-      }
-    });
-  }
-  else {
-    modules = await Module.findAll({ where: { charter_id: charter_id }});
-  }
+  let modules = await checkAccount(check_account, Module, ModuleCheckAccount);
 
   let sendArray = [];
-
   modules.forEach(el => {
     sendArray.push({
       id: el.id,
       name: el.name
     });
   });
+
   return { 
     charter_id: charter_id,
     modules: sendArray
@@ -84,7 +75,12 @@ const getModulesCharter = async (req) => {
 }
 
 const setModule = async (req) =>{
+
   let account = await verifyToken(req);
+  if(account.role !== "admin") {
+    throw new ApiError(403, `You are not eligible for this action`);
+  }
+  
   let name = req.query.name;
   let charter_id = req.query.charter_id;
 
@@ -99,6 +95,7 @@ const setModule = async (req) =>{
     name: name,
     charter_id: charter_id
   });
+  
   return {
     module: {
       id: newModule.id,
@@ -109,29 +106,36 @@ const setModule = async (req) =>{
 }
 
 const getModulesAccount = async (req) => {
+  
   let account = await verifyToken(req);
+
   let accountModules = await ModuleCheckAccount.findAll({
     where: {
       account_id: account.id
     }
   });
+
   let sendArray = [];
   accountModules.forEach(el => {
     sendArray.push({
       module_id: el.module_id
     });
   });
-  return { modules: sendArray } 
+  return { 
+    modules: sendArray 
+  } 
 }
 
 const setAccessModule = async (req) => {
-  let account = await verifyToken(req);
-  let module_id = req.query.module_id;
-  let account_id = req.query.account_id;
   
+  let account = await verifyToken(req);
   if(account.role !== "admin") {
     throw new ApiError(288,`Not enough rights`);
   } 
+  
+  let module_id = req.query.module_id;
+  let account_id = req.query.account_id;
+  
   if(typeof module_id === "undefined") {
     throw new ApiError(400, `Module id undefined`);
   }
@@ -154,7 +158,9 @@ const setAccessModule = async (req) => {
     account_id: account_id
   });
 
-  return { connectModule: conModule }
+  return { 
+    connectModule: conModule 
+  }
 }
 
 module.exports = {

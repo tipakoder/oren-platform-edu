@@ -1,46 +1,36 @@
 const { Theme, ThemeCheckAccount, Account } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
+const { checkAccount } = require("./module");
 
 const getAllTheme = async (req) => {
+  
   let account = await verifyToken(req);
+
   let check_account = req.query.check_account;
   
-  let themes = null
-  if(typeof check_account !== "undefined" && check_account) {
-    let checked = await ThemeCheckAccount.findAll({
-      where: {
-        account_id: account.id
-      }
-    });
-    let whereArray = [];
-    checked.forEach(el => {
-      whereArray.push(el.theme_id)
-    })
-    themes = await Theme.findAll({ 
-      where: {
-        id: whereArray
-      }
-    });
-  }
-  else {
-    themes = await Theme.findAll();
-  }
+  let themes = await checkAccount(check_account, Theme, ThemeCheckAccount);
 
   let sendArray = []
   themes.forEach(el => {
     sendArray.push({
       id: el.id,
       name: el.name,
-      module_id: el.module_id
+      module_id: el.module_id,
+      time_round: el.time_round,
+      question_round: el.question_round
     });
   });
 
-  return { themes: sendArray }
+  return { 
+    themes: sendArray 
+  }
 }
 
 const getThemesModule = async (req) => {
+  
   let account = await verifyToken(req);
+
   let module_id = req.query.module_id;
   let check_account = req.query.check_account;
 
@@ -48,34 +38,16 @@ const getThemesModule = async (req) => {
     throw new ApiError(400, `Module id undefined`);
   }
 
-  let themes = null
-  if(typeof check_account !== "undefined" && check_account) {
-    let checked = await ThemeCheckAccount.findAll({
-      where: {
-        account_id: account.id,
-      }
-    });
-    let whereArray = [];
-    checked.forEach(el => {
-      whereArray.push(el.theme_id)
-    })
-    themes = await Theme.findAll({ 
-      where: {
-        id: whereArray,
-        module_id: module_id
-      }
-    });
-  }
-  else {
-    themes = await Theme.findAll({ where: { module_id: module_id } });
-  }
+  let themes = await checkAccount(check_account, Theme, ThemeCheckAccount);
 
   let sendArray = []
   themes.forEach(el => {
     sendArray.push({
       id: el.id,
       name: el.name,
-      module_id: el.module_id
+      module_id: el.module_id,
+      time_round: el.time_round,
+      question_round: el.question_round
     });
   });
 
@@ -86,9 +58,16 @@ const getThemesModule = async (req) => {
 }
 
 const setTheme = async (req) => {
+  
   let account = await verifyToken(req);
+  if(account.role !== "admin") {
+    throw new ApiError(288,`Not enough rights`);
+  } 
+
   let name = req.query.name;
   let module_id = req.query.module_id;
+  let time_round = req.query.time_round;
+  let question_round = req.query.question_round;
 
   if(typeof name === "undefined") {
     throw new ApiError(400, `Name undefined`);
@@ -96,35 +75,51 @@ const setTheme = async (req) => {
   if(typeof module_id === "undefined") {
     throw new ApiError(400, `Module id undefined`);
   }
+  if(typeof time_round === "undefined") {
+    throw new ApiError(400, `Time round undefined`);
+  }
+  if(typeof question_round === "undefined") {
+    throw new ApiError(400, `Question round undefined`);
+  }
 
   let newTheme = await Theme.create({
-    name: name,
-    module_id: module_id
+    name,
+    module_id,
+    time_round,
+    question_round
   });
 
   return {
     theme: {
       id: newTheme.id,
       name: newTheme.name,
-      module_id: newTheme.module_id
+      module_id: newTheme.module_id,
+      time_round: newTheme.time_round,
+      question_round: newTheme.question_round
     }
   }
 }
 
 const getThemesAccount = async (req) => {
+  
   let account = await verifyToken(req);
+  
   let accountThemes = await ThemeCheckAccount.findAll({
     where: {
       account_id: account.id
     }
   });
+
   let sendArray = [];
   accountThemes.forEach(el => {
     sendArray.push({
       theme_id: el.theme_id
     });
   });
-  return { themes: sendArray } 
+  
+  return { 
+    themes: sendArray 
+  } 
 }
 
 const setAccessTheme = async (req) => {
@@ -157,7 +152,9 @@ const setAccessTheme = async (req) => {
     account_id: account_id
   });
 
-  return { connectTheme: conModule }
+  return { 
+    connectTheme: conModule 
+  }
 }
 
 module.exports = {
