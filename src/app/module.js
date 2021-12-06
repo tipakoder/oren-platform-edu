@@ -2,7 +2,7 @@ const { Module, Account, ModuleCheckAccount } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
-export const checkAccount = async (check_account, base, checkBase) => {
+const checkAccount = async (check_account, base, checkBase) => {
   let docs = null
   if(typeof check_account !== "undefined" && check_account) {
     let checked = await checkBase.findAll({

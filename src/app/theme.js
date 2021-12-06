@@ -1,7 +1,31 @@
 const { Theme, ThemeCheckAccount, Account } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
-const { checkAccount } = require("./module");
+
+const checkAccount = async (check_account, base, checkBase) => {
+  let docs = null
+  if(typeof check_account !== "undefined" && check_account) {
+    let checked = await checkBase.findAll({
+      where: {
+        account_id: account.id
+      }
+    });
+    let whereArray = [];
+    checked.forEach(el => {
+      whereArray.push(el.module_id);
+    })
+    docs = await base.findAll({ 
+      where: {
+        id: whereArray
+      }
+    });
+  }
+  else {
+    docs = await base.findAll();
+  }
+  
+  return docs;
+}
 
 const getAllTheme = async (req) => {
   

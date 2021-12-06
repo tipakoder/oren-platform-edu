@@ -508,7 +508,13 @@ const ThemeCheckAccount = connection.define("theme_check_account",
         } 
     }
 );
-
+Theme.hasMany(ThemeCheckAccount, {
+    foreignKey: {
+        name: 'theme_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+});
 
 const ModuleCheckAccount = connection.define("module_check_account", 
     {
@@ -547,7 +553,6 @@ const ResponseQuestion = connection.define("response_question",
         },
         description: {
             type: DataTypes.STRING,
-            unique: true,
             allowNull: false
             
         },
@@ -601,7 +606,6 @@ const AnswerQuestion = connection.define("answer_question", {
     },
     response_question_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         references: {
             model: ResponseQuestion,
             key: 'id'
@@ -624,7 +628,6 @@ Question.hasMany(AnswerQuestion, {
 ResponseQuestion.hasMany(AnswerQuestion, {
     foreignKey: {
         name: 'response_question_id',
-        allowNull: false,
     }
 });
 
