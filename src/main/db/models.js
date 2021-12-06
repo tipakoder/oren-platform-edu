@@ -238,7 +238,7 @@ Module.hasMany(ThemeModule, {
     onDelete: 'CASCADE'
 });
 
-const AccountTheme = connection.define("account_theme",
+const Test = connection.define("test",
     {
         id: {
             type: DataTypes.INTEGER,
@@ -255,18 +255,18 @@ const AccountTheme = connection.define("account_theme",
                 key: 'id'
             }
         },
-        theme_id: {
+        module_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: Theme,
+                model: Module,
                 key: 'id'
             }
         },
         start_date: {
             type: DataTypes.DATE,
             allowNull: false
-        }
+        }``
     }
 );
 
@@ -583,11 +583,19 @@ const AnswerQuestion = connection.define("answer_question", {
         unique: false,
         autoIncrement: true
     },
-    account_theme_id: {
+    test_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: AccountTheme,
+            model: Test,
+            key: 'id'
+        }
+    },
+    question_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Question,
             key: 'id'
         }
     },
@@ -601,9 +609,15 @@ const AnswerQuestion = connection.define("answer_question", {
     },
 });
 
-AccountTheme.hasMany(AnswerQuestion, {
+Test.hasMany(AnswerQuestion, {
     foreignKey: {
-        name: 'account_theme_id',
+        name: 'test_id',
+        allowNull: false,
+    }
+});
+Question.hasMany(AnswerQuestion, {
+    foreignKey: {
+        name: 'question_id',
         allowNull: false,
     }
 });
@@ -625,7 +639,7 @@ module.exports = {
     Question,
     QuestionAddition,
     AccountLvlCharter,
-    AccountTheme,
+    Test,
     Message,
     ThemeMessage,
     AccountAchievement,
