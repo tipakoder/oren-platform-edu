@@ -65,7 +65,7 @@ const startTest = async (req) => {
     let questionsTheme = await Question.findAll({
       where: {
         type: "oneCurrent",
-        lvl: lvl
+        level: lvl
       },
       include: [
         {
@@ -177,14 +177,135 @@ const startTest = async (req) => {
 
   return {
     test: {
+      test_id: newTest.id,
       module_id: newTest.module_id,
       start_date: newTest.start_date,
+      close: newTest.close,
       questions: questionArray
     }
   }
 }
 
 
+const setAnswer = async (req) => {
+  let account = await verifyToken(req);
+  
+  let test_id = req.query.test_id;
+  let question_id = req.query.question_id;
+  let response_id = req.query.response_id;
+  
+  if(typeof test_id === "undefined") {
+    throw new ApiError(400, `Test id undefined`);
+  }
+  if(typeof question_id === "undefined") {
+    throw new ApiError(400, `Question id undefined`);
+  }
+  if(typeof response_id === "undefined") {
+    throw new ApiError(400, `Response id undefined`);
+  }
+  
+  if(!(await Test.findOne({
+    where: {
+      account_id: account.id,
+      id: test_id
+    }
+  }))) {
+    throw new ApiError(403, `Insufficient rights to modify`);
+  }
+  
+  let test;
+  if(!(test = await Test.findOne({
+    where: {
+      id: test_id
+    }
+  }))) {
+    throw new ApiError(400, `Test undefined`);
+  }
+  if((new Date()) > test.start_date) {
+    throw new ApiError(403, `Time is up`);
+  }
+  if(test.close) {
+    throw new ApiError(403, `Test is closed`);
+  }
+
+  if(!(await ResponseQuestion.findOne({
+    where: {
+      id: response_id,
+      question_id: question_id
+    }
+  }))) {
+    throw new ApiError(400, `Response in question undefined`);
+  }
+
+  
+  if(!(
+    await AnswerQuestion.update(
+      {
+        response_question_id: response_id
+      },
+      {
+        where: {
+          test_id: test_id,
+          question_id: question_id
+        }
+      })
+  )) {
+    throw new ApiError(400, `No update answer`);
+  }
+
+  return {
+    test_id: test_id,
+    question_id: question_id,
+    answer: {
+      response_id: response_id
+    }
+  }
+}
+
+const closeTest = async (req) => {
+  let account = await verifyToken(req);
+
+  let module_id = req.query.module_id;
+  let test_id = req.query.test_id;
+
+  if(typeof test_id === "undefined") {
+    throw new ApiError(400, `Test id undefined`);
+  }
+  if(typeof module_id === "undefined") {
+    throw new ApiError(400, `Module id undefined`);
+  }
+  if(!(await Test.findOne({
+    where: {
+      id: test_id,
+      account_id: account.id,
+      module_id: module_id
+    }
+  }))) {
+    throw new ApiError(400, `Test is undefined`);
+  }
+
+  await Test.update(
+    {
+      close: true
+    },
+    {
+      where: {
+        account_id: account.id,
+        id: test_id,
+        module_id: module_id
+      }
+    }
+  );
+
+  return {
+    test_id: test_id,
+    module_id: module_id,
+    close: true
+  }
+}
+
 module.exports = {
-  startTest
+  startTest,
+  setAnswer,
+  closeTest
 }

@@ -266,6 +266,11 @@ const Test = connection.define("test",
         start_date: {
             type: DataTypes.DATE,
             allowNull: false
+        },
+        close: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     }
 );
