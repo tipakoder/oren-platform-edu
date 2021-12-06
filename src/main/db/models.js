@@ -266,7 +266,7 @@ const Test = connection.define("test",
         start_date: {
             type: DataTypes.DATE,
             allowNull: false
-        }``
+        }
     }
 );
 
