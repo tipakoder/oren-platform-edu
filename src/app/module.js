@@ -39,7 +39,8 @@ const getAllModule = async (req) => {
     sendArray.push({
       id: el.id,
       name: el.name,
-      charter_id: el.charter_id
+      charter_id: el.charter_id,
+      time_round: el.time_round
     });
   });
   return { 
@@ -64,7 +65,8 @@ const getModulesCharter = async (req) => {
   modules.forEach(el => {
     sendArray.push({
       id: el.id,
-      name: el.name
+      name: el.name,
+      time_round: el.time_round
     });
   });
 
@@ -83,6 +85,7 @@ const setModule = async (req) =>{
   
   let name = req.query.name;
   let charter_id = req.query.charter_id;
+  let time_round = req.query.time_round;
 
   if(typeof name === "undefined") {
     throw new ApiError(400, `Name undefined`);
@@ -90,10 +93,14 @@ const setModule = async (req) =>{
   if(typeof charter_id === "undefined") {
     throw new ApiError(400, `Charter id undefined`);
   }
+  if(typeof time_round === "undefined") {
+    time_round = "00:10:00";
+  }
 
   let newModule = await Module.create({
     name: name,
-    charter_id: charter_id
+    charter_id: charter_id,
+    time_round: time_round
   });
   
   return {
