@@ -155,7 +155,7 @@ const generationStudents = async(req) => {
     let adminAccount = verifyToken(req);
 
     // If not admin
-    if(adminAccount.role === "admin") {
+    if(adminAccount.role !== "admin") {
         throw ApiError.forbidden();
     }
 
