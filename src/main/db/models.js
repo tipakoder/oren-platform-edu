@@ -316,6 +316,13 @@ const Message = connection.define("message",
         text: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        author: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
         }
     }
 );
