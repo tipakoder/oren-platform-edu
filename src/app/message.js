@@ -125,7 +125,6 @@ const setMessageTheme = async (req) => {
   
   return {
     message: {
-      is_author: true,
       text: newMessage.text,
       theme: {
         id: theme.id,
