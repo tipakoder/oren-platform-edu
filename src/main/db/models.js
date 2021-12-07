@@ -326,6 +326,8 @@ const Message = connection.define("message",
         }
     }
 );
+Message.belongsTo(Account, { foreignKey:'author', onDelete: 'CASCADE'} );
+
 const ThemeMessage = connection.define("theme_message",
     {
         message_id: {
