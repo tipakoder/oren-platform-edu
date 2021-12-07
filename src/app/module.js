@@ -62,8 +62,36 @@ const getModulesCharter = async (req) => {
     if(typeof charter_id === "undefined") {
         throw new ApiError(400, `Charter id undefined`);
     }
+    if(typeof check_account === "undefined") {
+      check_account = false;
+    }
+    
+    let modules;
+  
+    if(typeof check_account !== "undefined" && check_account) {
+      let checked = await ModuleCheckAccount.findAll({
+          where: {
+              account_id: account.id
+          }
+      });
+      let whereArray = [];
+      checked.forEach(el => {
+          whereArray.push(el.module_id);
+      })
+      modules = await Module.findAll({
+          where: {
+              id: whereArray
+          }
+      });
+    }
+    else {
+        modules = await Module.findAll({
+          where: {
+            charter_id: charter_id
+          }
+        });
+    }
 
-    let modules = await checkAccount(check_account, Module, ModuleCheckAccount);
 
     let sendArray = [];
     modules.forEach(el => {
