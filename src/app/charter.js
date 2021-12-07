@@ -30,7 +30,7 @@ const getAllCharter = async (req) => {
 const setCharter = async (req) => {
 
   const account = await verifyToken(req);
-  if((account.role !== "admin" | account.role !== "teacher")) {
+  if(account.role !== "admin") {
     throw new ApiError(403, `You are not eligible for this action`);
   }
 
