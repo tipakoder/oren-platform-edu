@@ -1,4 +1,4 @@
-const { Question, ThemePostQuestion, ResponseQuestion, Theme, QuestionAddition } = require("../main/db/models");
+const { Question, ThemePostQuestion, ResponseQuestion, Theme, QuestionAddition, ThemeQuestion } = require("../main/db/models");
 const Sequelize = require("sequelize");
 const { verifyToken } = require("./account");
 const ApiError = require("../main/error/apiError");
@@ -148,26 +148,40 @@ const setQuestion = async (req) => {
 
   let account = await verifyToken(req);
 
-  let theme_ids = JSON.parse(req.body.theme_ids);
-  let name = req.body.name;
   let description = req.body.description;
-  let type = req.body.type;
   let level = req.body.level;
+  let name = req.body.name;
+  let type = req.body.type;
   let cost = req.body.cost;
-  let images = req.body.images;
-  let responses = JSON.parse(req.body.responses);
+  let theme_ids;
+  try {
+    theme_ids = JSON.parse(req.body.theme_ids);
+  } catch {
+    theme_ids = undefined;
+  }
+  let responses;
+  try {
+    responses = JSON.parse(req.body.responses);
+  } catch {
+    responses = undefined;  
+  }
+  let images;
+  try{
+    images = JSON.parse(req.body.images);
+
+  } catch {
+    images = req.body.images;
+  }
   
+
   if(typeof theme_ids === "undefined") {
-    throw new ApiError(400, `Theme id undefined`);
-  }
-  if(typeof name === "undefined") {
-    throw new ApiError(400, `Name undefined`);
-  }
-  if(typeof description === "undefined") {
-    throw new ApiError(400, `Description undefined`);
+    throw new ApiError(400, `Theme ids undefined`);
   }
   if(typeof type === "undefined") {
     throw new ApiError(400, `Type undefined`);
+  }
+  if(typeof description === "undefined") {
+    throw new ApiError(400, `Description undefined`);
   }
   if(typeof level === "undefined") {
     throw new ApiError(400, `Level undefined`);
@@ -178,44 +192,66 @@ const setQuestion = async (req) => {
   if(typeof responses === "undefined") {
     throw new ApiError(400, `Responses undefined`);
   }
+  if(typeof name === "undefined") {
+    throw new ApiError(400, `Name directory undefined`);
+  }
 
   let checkImg = false;
   if(typeof images !== "undefined") {
-    console.log(images.length);
     checkImg = true
   }
 
+
   let imagesDB = []
-  if(checkImg) {
-    images.forEach(img => {
-      // file
+  if(checkImg && images.length) {
+    for (let i = 0; i < images.length; i++) {
+      const el = images[i];
       let data = fs.readFileSync(img.path);
+
       if(!data) {
         throw new ApiError(83, `No data read image file`);
       }
-  
-      fs.promises.mkdir(`${resolve(__dirname, "../../")}/public/imageQuestions/${name}`, { recursive: true }).then(file => {
-        fs.writeFile(`${resolve(__dirname, "../../")}/public/imageQuestions/${name}/${images.indexOf(img)+1}.png`, data, {}, (e) => {
+
+      fs.promises.mkdir(`${resolve(__dirname, "../../")}/public/imageQuestions/${name}`, { recursive: true }).then(() => {
+        fs.writeFile(`${resolve(__dirname, "../../")}/public/imageQuestions/${name}/${i+1}.png`, data, {}, (e) => {
           if(e) {
             throw new ApiError(83, `Error write image file`);
           }
           else {          
-            imagesDB.push(`/public/imageQuestions/${name}/${images.indexOf(img)+1}.png`);
+            imagesDB.push(`/public/imageQuestions/${name}/${i+1}.png`);
           }
         });
+      });
+    }
+  }
+  else if(checkImg) {
+    let data = fs.readFileSync(images.path);
+
+    if(!data) {
+      throw new ApiError(83, `No data read image file`);
+    }
+
+    fs.promises.mkdir(`${resolve(__dirname, "../../")}/public/imageQuestions/${name}`, { recursive: true }).then(() => {
+      fs.writeFile(`${resolve(__dirname, "../../")}/public/imageQuestions/${name}/${1}.png`, data, {}, (e) => {
+        if(e) {
+          throw new ApiError(83, `Error write image file`);
+        }
+        else {          
+          imagesDB.push(`/public/imageQuestions/${name}/${1}.png`);
+        }
       });
     });
   }
   
-  theme_ids.forEach(async (el) => {
+  for (let i = 0; i < theme_ids.length; i++) {
+    const el = theme_ids[i];
     let themeCheck = await Theme.findOne({ where: { id: el.theme_id }});
     if(!themeCheck) {
       throw new ApiError(500, `The theme is not found`);
     }
-  })
+  }
 
   let newQuestion = await Question.create({
-    name,
     description,
     type,
     level,
@@ -223,17 +259,19 @@ const setQuestion = async (req) => {
   });
 
   if(checkImg) {
-    imagesDB.forEach( async (url) => {
+    for (let i = 0; i < imagesDB.length; i++) {
+      const el = imagesDB[i];
       await QuestionAddition.create({
         question_id: newQuestion.id,
-        media_path: url
+        media_path: el
       });
-    });
+    }
   }
 
   let arrayTheme = [];
-  theme_ids.forEach( async (el) => {
-    let conTheme = await ThemePostQuestion.create({
+  for (let i = 0; i < theme_ids.length; i++) {
+    const el = theme_ids[i];
+    let conTheme = await ThemeQuestion.create({
       theme_id: el.theme_id,
       question_id: newQuestion.id,
       is_milestone: el.is_milestone
@@ -242,7 +280,7 @@ const setQuestion = async (req) => {
       theme_id: conTheme.theme_id,
       is_milestone: conTheme.is_milestone
     });
-  });
+  }
 
 
   let sendArrayResponses = []

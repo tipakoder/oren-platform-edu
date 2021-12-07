@@ -2,11 +2,7 @@ const { Module, Test, ThemeCheckAccount, Theme, ThemeModule, Question, ThemeQues
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account")
 
-function shuffle(array) {
-    array.sort(() => Math.round(Math.random() * 100) - 50);
-}
-
-const startTest = async (req) => {
+const startTestModule = async (req) => {
     let account = await verifyToken(req);
 
     let module_id = req.query.module_id;
@@ -265,20 +261,15 @@ const setAnswer = async (req) => {
 const closeTest = async (req) => {
     let account = await verifyToken(req);
 
-    let module_id = req.query.module_id;
     let test_id = req.query.test_id;
 
     if(typeof test_id === "undefined") {
         throw new ApiError(400, `Test id undefined`);
     }
-    if(typeof module_id === "undefined") {
-        throw new ApiError(400, `Module id undefined`);
-    }
     if(!(await Test.findOne({
         where: {
             id: test_id,
             account_id: account.id,
-            module_id: module_id
         }
     }))) {
         throw new ApiError(400, `Test is undefined`);
@@ -305,7 +296,7 @@ const closeTest = async (req) => {
 }
 
 module.exports = {
-    startTest,
+    startTestModule,
     setAnswer,
     closeTest
 }
