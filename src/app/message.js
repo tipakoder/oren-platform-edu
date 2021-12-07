@@ -36,9 +36,12 @@ const getMessageTheme = async (req) => {
         message_id: el.id,
       }
     });
-  
+    
+    let check_you_like = (await LikeCheck.findOne({ where: { account_id: account.id, message_id: el.id } })) ? true : false
+
     sendArray.push({
       text: el.text,
+      is_like: check_you_like,
       author: {
         id: el.account.id,
         nickname: el.account.nickname
@@ -122,7 +125,7 @@ const setMessageTheme = async (req) => {
       message_id: newMessage.id
     }
   });
-  
+
   return {
     message: {
       text: newMessage.text,
