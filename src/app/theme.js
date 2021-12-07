@@ -1,4 +1,4 @@
-const { Theme, ThemeCheckAccount, Account } = require("../main/db/models");
+const { Theme, ThemeCheckAccount, Account, ThemeModule } = require("../main/db/models");
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
 
@@ -12,7 +12,7 @@ const checkAccount = async (check_account, base, checkBase) => {
         });
         let whereArray = [];
         checked.forEach(el => {
-            whereArray.push(el.module_id);
+            whereArray.push(el.theme_id);
         })
         docs = await base.findAll({
             where: {
@@ -59,8 +59,41 @@ const getThemesModule = async (req) => {
     if(typeof module_id === "undefined") {
         throw new ApiError(400, `Module id undefined`);
     }
+    if(typeof check_account === "undefined") {
+        check_account = false;
+    }
 
-    let themes = await checkAccount(check_account, Theme, ThemeCheckAccount);
+    let themes;
+    if(typeof check_account !== "undefined" && check_account) {
+        let checked = await ThemeCheckAccount.findAll({
+            where: {
+                account_id: account.id
+            }
+        });
+        let whereArray = [];
+        checked.forEach(el => {
+            whereArray.push(el.theme_id);
+        })
+        themes = await Theme.findAll({
+            where: {
+                id: whereArray
+            }
+        });
+    }
+    else {
+        themes = await Theme.findAll({
+            where: {},
+            include: [
+                { 
+                    model: ThemeModule,
+                    where: {
+                        module_id: module_id    
+                    } 
+                }
+            ]
+        });
+    }
+
 
     let sendArray = []
     themes.forEach(el => {
