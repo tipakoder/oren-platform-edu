@@ -41,7 +41,6 @@ const getAllTheme = async (req) => {
       id: el.id,
       name: el.name,
       module_id: el.module_id,
-      question_round: el.question_round
     });
   });
 
@@ -69,7 +68,6 @@ const getThemesModule = async (req) => {
       id: el.id,
       name: el.name,
       module_id: el.module_id,
-      question_round: el.question_round
     });
   });
 
@@ -88,7 +86,6 @@ const setTheme = async (req) => {
 
   let name = req.query.name;
   let module_id = req.query.module_id;
-  let question_round = req.query.question_round;
 
   if(typeof name === "undefined") {
     throw new ApiError(400, `Name undefined`);
@@ -96,14 +93,10 @@ const setTheme = async (req) => {
   if(typeof module_id === "undefined") {
     throw new ApiError(400, `Module id undefined`);
   }
-  if(typeof question_round === "undefined") {
-    throw new ApiError(400, `Question round undefined`);
-  }
 
   let newTheme = await Theme.create({
     name,
     module_id,
-    question_round
   });
 
   return {
@@ -111,7 +104,6 @@ const setTheme = async (req) => {
       id: newTheme.id,
       name: newTheme.name,
       module_id: newTheme.module_id,
-      question_round: newTheme.question_round
     }
   }
 }
