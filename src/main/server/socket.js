@@ -35,17 +35,17 @@ class SocketServer {
                 let req = socket.handshake;
                 let account = verifyToken(req);
 
-                let theme_id = req.query.theme_id;
+                const theme_id = req.query.theme_id;
 
                 if(typeof theme_id === "undefined") {
                     throw new ApiError(404, "Theme id invalid");
                 }
 
-                socket.on("message", (msg) => {
+                socket.on("comment new", (msg) => {
                     let text = msg.text;
                     if(typeof text === "undefined")
                         throw new ApiError(404, "Text is undefined");
-                    socket.broadcast.emit("comment new", text);
+                    this.#io.to(theme_id).emit("comment new", {text});
                 });
 
                 socket.join(theme_id);
