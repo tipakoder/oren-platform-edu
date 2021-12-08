@@ -49,9 +49,9 @@ const Charter = connection.define("charter",
     {
         hooks: {
             afterCreate: async function(charter, options) {
-                let charters = await Account.findAll();
-                for (let i = 0; i < charters.length; i++) {
-                    const el = charters[i];
+                let accounts = await Account.findAll();
+                for (let i = 0; i < accounts.length; i++) {
+                    const el = accounts[i];
                     AccountLvlCharter.create({
                       account_id: el.id,
                       charter_id: charter.id
@@ -242,6 +242,14 @@ const Module = connection.define("module",
         }
     }
 );
+
+Charter.hasMany(Module, {
+    foreignKey: {
+        name: 'charter_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+})
 
 const Theme = connection.define("theme",
     {

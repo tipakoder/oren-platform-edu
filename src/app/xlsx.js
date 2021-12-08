@@ -179,7 +179,7 @@ const unloadingQuestions = async (req) => {
             responseOneError.push({
                 res_question_description: el.question_description,
                 res_description: el.description,
-                res_is_current: el.is_current,
+                res_is_correct: el.is_correct,
                 error_code: 404,
                 error_message: `Question undefined`
             });
@@ -189,12 +189,12 @@ const unloadingQuestions = async (req) => {
         let newRes = ResponseQuestion.create({
             description: el.description,
             question_id: questionO.id,
-            is_current: el.is_current
+            is_correct: el.is_correct
         }).catch(e => {
             responseOneError.push({
                 res_question_description: el.question_description,
                 res_description: el.description,
-                res_is_current: el.is_current,
+                res_is_correct: el.is_correct,
                 error_code: e.original.errno,
                 error_message: e.original.sqlMessage
             });

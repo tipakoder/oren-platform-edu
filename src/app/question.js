@@ -288,7 +288,7 @@ const setQuestion = async (req) => {
     const element = responses[i];
     let responseQuestion = await ResponseQuestion.create({
       description: element.description,
-      is_current: element.is_current,
+      is_correct: element.is_correct,
       question_id: newQuestion.id
     });
     if(responseQuestion) {
