@@ -40,6 +40,7 @@ const getMessageTheme = async (req) => {
     let check_you_like = (await LikeCheck.findOne({ where: { account_id: account.id, message_id: el.id } })) ? true : false
 
     sendArray.push({
+      id: el.id,
       text: el.text,
       is_like: check_you_like,
       author: {
