@@ -18,9 +18,14 @@ class SocketServer {
         this.#port;
 
         this.#app = express();
-        this.#app.use(cors());
         this.#server = http.createServer(this.#app);
-        this.#io = new Server(this.#server);
+        this.#io = new Server(this.#server, {
+            cors: {
+                origin: "http://127.0.0.1:3000",
+                credentials: true
+            },
+            transports: ['websocket']
+        });
 
         this.#io.on('connection', (socket) => {
             socket.emit("comment new",
