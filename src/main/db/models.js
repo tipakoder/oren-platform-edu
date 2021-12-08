@@ -21,6 +21,47 @@ const Class = connection.define("class",
     }
 );
 
+const Charter = connection.define("charter",
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            unique: true,
+            autoIncrement: true
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        rank_number_max: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        progress_max: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        }
+    },
+    {
+        hooks: {
+            afterCreate: async function(charter, options) {
+                let charters = await Account.findAll();
+                for (let i = 0; i < charters.length; i++) {
+                    const el = charters[i];
+                    AccountLvlCharter.create({
+                      account_id: el.id,
+                      charter_id: charter.id
+                    });
+                } 
+            }
+        }
+    }
+);
+
 const Account = connection.define("account",
     {
         id: {
@@ -77,9 +118,51 @@ const Account = connection.define("account",
             allowNull: false,
             defaultValue: 0
         },
+    },
+    {
+        hooks: {
+            afterCreate: async function(user, options) {
+                let charters = await Charter.findAll();
+                for (let i = 0; i < charters.length; i++) {
+                    const el = charters[i];
+                    AccountLvlCharter.create({
+                      account_id: user.id,
+                      charter_id: el.id
+                    });
+                } 
+            }
+        }
     }
 );
 
+const AccountLvlCharter = connection.define("account_lvl_charter",
+    {
+        progress_count: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        account_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Account,
+                key: 'id'
+            }
+        },
+        charter_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Charter,
+                key: 'id'
+            }
+        },
+        rank_count: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        }
+    }
+);
 
 const Achievement = connection.define("achievement",
     {
@@ -101,33 +184,6 @@ const Achievement = connection.define("achievement",
         design_path: {
             type: DataTypes.STRING,
             allowNull: false
-        }
-    }
-);
-
-const Charter = connection.define("charter",
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            unique: true,
-            autoIncrement: true
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-        },
-        rank_number_max: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        progress_max: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1
         }
     }
 );
@@ -288,35 +344,6 @@ const Test = connection.define("test",
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
-        }
-    }
-);
-
-const AccountLvlCharter = connection.define("account_lvl_charter",
-    {
-        progress_count: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        account_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Account,
-                key: 'id'
-            }
-        },
-        charter_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Charter,
-                key: 'id'
-            }
-        },
-        rank_count: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
         }
     }
 );
