@@ -1,16 +1,24 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const ApiError = require("../main/error/apiError");
 const Response = require("../main/server/response");
-const {Account} = require("../main/db/models");
+const {Account, AccountSession} = require("../main/db/models");
 
 /**
  * Create session
  * @return {*}
  * @param object
  */
-const createSession = (object) => {
-    return jwt.sign(object, process.env.JWT_SECRET_KEY, {expiresIn: '24h'});
+const createSession = (account_id) => {
+    let token = bcrypt.hashSync(`${account_id}.${Date.now()}`, 2);
+
+    AccountSession.create(
+        {
+            account_id,
+            token
+        }
+    );
+
+    return token;
 }
 
 /**
@@ -83,7 +91,7 @@ const registerByCode = async(req) => {
     );
 
     let account = accountCreate.dataValues;
-    let token = createSession(account);
+    let token = createSession(account.id);
 
     return {
         id: account.id,
@@ -120,7 +128,7 @@ const auth = async(req) => {
         throw new ApiError(403, "Password incorrect!");
     }
 
-    let token = createSession(accountByLogin.dataValues);
+    let token = createSession(accountByLogin.dataValues.id);
 
     return {
         id: accountByLogin.dataValues.id,
@@ -138,12 +146,21 @@ const verifyToken = async(req) => {
         throw new ApiError(403, "Token invalid");
 
     let token = req.headers.token;
-    let verify = await jwt.verify(token, process.env.JWT_SECRET_KEY);
-    if(verify) {
-        return verify;
-    } else {
+    let verify;
+    if(!(verify = await Account.findOne(
+        {
+            include: {
+                model: AccountSession,
+                where: {
+                    token
+                }
+            }
+        }
+    ))) {
         throw ApiError.forbidden();
     }
+
+    return verify.dataValues;
 }
 
 /**
@@ -152,7 +169,7 @@ const verifyToken = async(req) => {
  * @return {Promise<void>}
  */
 const generationStudents = async(req) => {
-    let adminAccount = verifyToken(req);
+    let adminAccount = await verifyToken(req);
 
     // If not admin
     if(adminAccount.role !== "admin") {
