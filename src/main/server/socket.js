@@ -40,19 +40,19 @@ class SocketServer {
             const theme_id = req.query.theme_id;
 
             if(typeof theme_id === "undefined")
-                return this.sendError(400, "Theme id invalid");
+                return this.sendError(400, "Theme id invalid", socket);
 
             socket.join(theme_id);
 
             socket.on("comment new", (msg) => {
                 let newMessage = setMessageTheme(req);
-                this.#io.to(theme_id).emit("comment new", newMessage);
+                this.#io.to(theme_id).emit("comment new", newMessage, socket);
             });
 
             socket.on("liked", (msg) => {
                 let messageId = msg.message_id;
                 if(typeof messageId === "undefined")
-                    return this.sendError(400, "Message id undefined");
+                    return this.sendError(400, "Message id undefined", socket);
 
                 let likedMessageResult = likedMessage(req);
                 this.#io.to(theme_id).emit("liked", likedMessageResult);
