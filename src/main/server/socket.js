@@ -1,4 +1,5 @@
 const http = require('http');
+const cors = require("cors");
 const colors = require("colors");
 const express = require('express');
 const { Server } = require("socket.io");
@@ -17,6 +18,7 @@ class SocketServer {
         this.#port;
 
         this.#app = express();
+        this.#app.use(cors());
         this.#server = http.createServer(this.#app);
         this.#io = new Server(this.#server);
 
