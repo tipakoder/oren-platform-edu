@@ -24,12 +24,6 @@ if(process.argv.indexOf("--cluster") !== -1) {
         for(let i = 0; i < cpuLength; i++) {
             let workerName = "worker-http";
 
-            // Start socket servers
-            if(
-                i >= (cpuLength / 2)
-            )
-                workerName = "worker-socket";
-
             // Launch
             cluster.fork(
                 {
@@ -37,6 +31,9 @@ if(process.argv.indexOf("--cluster") !== -1) {
                 }
             );
         }
+
+        // Launch socket server
+        require(`./src/worker-socket`);
     }
 
     // Worker process (workers)
