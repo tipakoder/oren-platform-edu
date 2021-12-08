@@ -21,7 +21,12 @@ class SocketServer {
         this.#io = new Server(this.#server);
 
         this.#io.on('connection', (socket) => {
-            socket.send("FUCK U")
+            socket.emit("comment new",
+                {
+                    name: "POG U",
+                    text: "FUCK U"
+                }
+            )
         });
     }
 
