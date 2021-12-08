@@ -128,8 +128,12 @@ const setTheme = async (req) => {
     }
 
     let newTheme = await Theme.create({
-        name,
-        module_id,
+        name
+    });
+    
+    await ThemeModule.create({
+        module_id: module_id,
+        theme_id: newTheme.id
     });
 
     return {
