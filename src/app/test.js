@@ -213,7 +213,7 @@ const startTestTheme = async (req) => {
     throw new ApiError(400, "Theme id undefined"); 
   }
   if(typeof question_round === "undefined") {
-    throw new ApiError(400, "Question round undefined"); 
+    question_round = 5; 
   }
   if(typeof lvl === "undefined") {
     lvl = 1;
