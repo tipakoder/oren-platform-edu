@@ -1,4 +1,5 @@
-const colors = require("colors");
-
 require("./env");
-console.log(colors.green("> SOCKET SERVER COPY STARTED (FAKE)"), colors.bgYellow(`(pid: ${process.pid})`));
+
+let SocketServer = require("./main/server/socket");
+let socketServer = new SocketServer();
+socketServer.start();

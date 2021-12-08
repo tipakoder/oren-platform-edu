@@ -26,8 +26,7 @@ if(process.argv.indexOf("--cluster") !== -1) {
 
             // Start socket servers
             if(
-                i >= (cpuLength / 2) &&
-                process.argv.indexOf("--with-socket") !== -1
+                i >= (cpuLength / 2)
             )
                 workerName = "worker-socket";
 
