@@ -48,7 +48,7 @@ class HttpServer {
 
         this.#app.use("/public", express.static(global.publicDirectory));
 
-        this.#app.use("/:module/:action", async(req, res, next) => {
+        this.#app.use("[(\\w+)|\\/]:module/:action", async(req, res, next) => {
             return await this.routing(req, res, next);
         });
 
