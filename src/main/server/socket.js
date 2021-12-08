@@ -22,7 +22,7 @@ class SocketServer {
 
         this.#io.on('connection', (socket) => {
             console.log('a user connected');
-            io.emit("commet new", {name: "Fuck u", text: "Fuck u"});
+            this.#io.emit("commet new", {name: "Fuck u", text: "Fuck u"});
         });
     }
 
