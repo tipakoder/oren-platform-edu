@@ -200,6 +200,11 @@ const Theme = connection.define("theme",
             type: DataTypes.STRING,
             unique: true,
             allowNull: false
+        },
+        time_round: {
+            type: DataTypes.TIME,
+            allowNull: false,
+            defaultValue: "00:10:00"
         }
     }
 );
@@ -257,15 +262,27 @@ const Test = connection.define("test",
         },
         module_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             references: {
                 model: Module,
+                key: 'id'
+            }
+        },
+        theme_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: Theme,
                 key: 'id'
             }
         },
         start_date: {
             type: DataTypes.DATE,
             allowNull: false
+        },
+        time_round: {
+            type: DataTypes.TIME
+        },
+        end_date: {
+            type: DataTypes.DATE
         },
         close: {
             type: DataTypes.BOOLEAN,
@@ -560,7 +577,7 @@ const ResponseQuestion = connection.define("response_question",
             unique: true,
             autoIncrement: true
         },
-        is_current: {
+        is_correct: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
@@ -633,17 +650,47 @@ Test.hasMany(AnswerQuestion, {
         allowNull: false,
     }
 });
-Question.hasMany(AnswerQuestion, {
+AnswerQuestion.belongsTo(Question, {
     foreignKey: {
         name: 'question_id',
         allowNull: false,
     }
 });
-ResponseQuestion.hasMany(AnswerQuestion, {
+AnswerQuestion.belongsTo(ResponseQuestion, {
     foreignKey: {
         name: 'response_question_id',
     }
 });
+
+
+const AccountSession = connection.define("account_session", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        unique: false,
+        autoIncrement: true
+    },
+    token: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    account_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Account,
+            key: 'id'
+        }
+    }
+});
+
+Account.hasMany(AccountSession, {
+    foreignKey: {
+        name: 'account_id',
+        allowNull: false,
+    }
+});
+
 
 module.exports = {
     Account,
@@ -665,5 +712,6 @@ module.exports = {
     ModuleCheckAccount,
     ResponseQuestion,
     AnswerQuestion,
-    ThemeModule
+    ThemeModule,
+    AccountSession
 }
