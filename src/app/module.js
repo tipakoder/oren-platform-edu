@@ -144,7 +144,6 @@ const setModule = async (req) =>{
 }
 
 const getModulesAccount = async (req) => {
-
     let account = await verifyToken(req);
 
     let accountModules = await ModuleCheckAccount.findAll({
