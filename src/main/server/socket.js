@@ -25,7 +25,7 @@ class SocketServer {
         this.#server = http.createServer(this.#app);
         this.#io = new Server(this.#server, {
             cors: {
-                origin: "http://127.0.0.1:3000",
+                origin: "*",
                 credentials: true
             },
             transports: ['websocket']
