@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const ApiError = require("../error/apiError");
 
 const {verifyToken} = require("../../app/account");
+const {setMessageTheme, likedMessage} = require("../../app/message");
 
 class SocketServer {
     #io;
@@ -32,23 +33,29 @@ class SocketServer {
 
         this.#io.on('connection', (socket) => {
             try{
-                let req = socket.handshake;
+                const req = socket.handshake;
                 let account = verifyToken(req);
 
                 const theme_id = req.query.theme_id;
 
-                if(typeof theme_id === "undefined") {
+                if(typeof theme_id === "undefined")
                     throw new ApiError(404, "Theme id invalid");
-                }
-
-                socket.on("comment new", (msg) => {
-                    let text = msg.text;
-                    if(typeof text === "undefined")
-                        throw new ApiError(404, "Text is undefined");
-                    this.#io.to(theme_id).emit("comment new", {text});
-                });
 
                 socket.join(theme_id);
+
+                socket.on("comment new", (msg) => {
+                    let newMessage = setMessageTheme(req);
+                    this.#io.to(theme_id).emit("comment new", newMessage);
+                });
+
+                socket.on("liked", (msg) => {
+                    let messageId = msg.message_id;
+                    if(typeof messageId === "undefined")
+                        throw new ApiError(404, "Message id undefined");
+
+                    let likedMessageResult = likedMessage(req);
+                    this.#io.to(theme_id).emit("liked", likedMessageResult);
+                });
             } catch (e) {
                 let errorDetails = e.toString();
                 if (e.getJson())
