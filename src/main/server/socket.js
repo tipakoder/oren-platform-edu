@@ -21,8 +21,7 @@ class SocketServer {
         this.#io = new Server(this.#server);
 
         this.#io.on('connection', (socket) => {
-            console.log('a user connected');
-            this.#io.emit("commet new", {name: "Fuck u", text: "Fuck u"});
+            socket.send("FUCK U")
         });
     }
 
