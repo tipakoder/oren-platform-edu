@@ -3,6 +3,9 @@ const cors = require("cors");
 const colors = require("colors");
 const express = require('express');
 const { Server } = require("socket.io");
+const ApiError = require("../error/apiError");
+
+const {verifyToken} = require("../../app/account");
 
 class SocketServer {
     #io;
@@ -28,12 +31,32 @@ class SocketServer {
         });
 
         this.#io.on('connection', (socket) => {
-            socket.emit("comment new",
-                {
-                    name: "POG U",
-                    text: "FUCK U"
+            try{
+                let req = socket.handshake;
+                let account = verifyToken(req);
+
+                let theme_id = req.query.theme_id;
+
+                if(typeof theme_id === "undefined") {
+                    throw new ApiError(404, "Theme id invalid");
                 }
-            )
+
+                socket.on("message", (msg) => {
+                    let text = msg.text;
+                    if(typeof text === "undefined")
+                        throw new ApiError(404, "Text is undefined");
+                    socket.broadcast.emit("comment new", text);
+                });
+
+                socket.join(theme_id);
+            } catch (e) {
+                let errorDetails = e.toString();
+                if (e.getJson())
+                    errorDetails = e.getJson();
+
+                socket.emit("error", errorDetails);
+                socket.disconnect();
+            }
         });
     }
 
