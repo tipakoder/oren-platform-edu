@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const ApiError = require("../error/apiError");
 
 const {verifyToken} = require("../../app/account");
+const {setMessageTheme, likedMessage} = require("../../app/message");
 
 class SocketServer {
     #io;
@@ -24,40 +25,55 @@ class SocketServer {
         this.#server = http.createServer(this.#app);
         this.#io = new Server(this.#server, {
             cors: {
-                origin: "http://127.0.0.1:3000",
+                origin: "*",
                 credentials: true
             },
             transports: ['websocket']
         });
 
         this.#io.on('connection', (socket) => {
-            try{
-                let req = socket.handshake;
-                let account = verifyToken(req);
+            const req = socket.handshake;
+            console.log(req)
 
-                const theme_id = req.query.theme_id;
+            let account = verifyToken(req);
 
-                if(typeof theme_id === "undefined") {
-                    throw new ApiError(404, "Theme id invalid");
-                }
+            const theme_id = req.query.theme_id;
 
-                socket.on("comment new", (msg) => {
-                    let text = msg.text;
-                    if(typeof text === "undefined")
-                        throw new ApiError(404, "Text is undefined");
-                    this.#io.to(theme_id).emit("comment new", {text});
-                });
+            if(typeof theme_id === "undefined")
+                return this.sendError(400, "Theme id invalid", socket);
 
-                socket.join(theme_id);
-            } catch (e) {
-                let errorDetails = e.toString();
-                if (e.getJson())
-                    errorDetails = e.getJson();
+            socket.join(theme_id);
 
-                socket.emit("error", errorDetails);
-                socket.disconnect();
-            }
+            socket.on("comment new", (msg) => {
+                let newMessage = setMessageTheme(req);
+                this.#io.to(theme_id).emit("comment new", newMessage, socket);
+            });
+
+            socket.on("liked", (msg) => {
+                let messageId = msg.message_id;
+                if(typeof messageId === "undefined")
+                    return this.sendError(400, "Message id undefined", socket);
+
+                let likedMessageResult = likedMessage(req);
+                this.#io.to(theme_id).emit("liked", likedMessageResult);
+            });
         });
+    }
+
+    /**
+     * Send error for socket client
+     * @param code
+     * @param message
+     * @param socket
+     */
+    sendError(code, message, socket) {
+        socket.emit("error",
+            {
+                code,
+                message
+            }
+        );
+        socket.disconnect();
     }
 
     /**
