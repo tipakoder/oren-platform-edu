@@ -1,6 +1,6 @@
 const ApiError = require("../main/error/apiError");
 const { verifyToken } = require("./account");
-const { Achievement } = require("../main/db/models");
+const { Achievement, AccountAchievement } = require("../main/db/models");
 const fs = require('fs');
 const { resolve } = require("path");
 
@@ -10,6 +10,43 @@ const getAllAchievement = async (req) => {
   console.log(`Account ${account.id} get all achievement`);
   
   let achievements = await Achievement.findAll();
+  let sendArray = []
+  
+  achievements.forEach(el => {
+    sendArray.push({
+      id: el.id,
+      name: el.name,
+      description: el.description,
+      design_path: el.design_path
+    });
+  });
+  
+
+  return { achievements: sendArray }
+}
+
+const getAccountAchievement = async (req) => {
+  let account = await verifyToken(req);
+
+  let charter_id = req.query.charter_id;
+
+  if(typeof charter_id === "undefined") {
+    throw new ApiError(400, `Charter id undefined`);
+  }
+
+  console.log(`Account ${account.id} get all achievement`);
+  
+  let achievements = await Achievement.findAll({
+    include: [
+      {
+        model: AccountAchievement,
+        where: {
+          account_id: account.id,
+          charter_id
+        }
+      }
+    ]
+  });
   let sendArray = []
   
   achievements.forEach(el => {
@@ -71,8 +108,31 @@ const setAchievement = async (req) => {
   }
 }
 
+const setConAchievement = async (req) => {
+  let account = await verifyToken(req);
+  let charter_id = req.query.charter_id;
+  let achievement_id = req.query.achievement_id;
+
+  if(typeof charter_id === "undefined") {
+    throw new ApiError(400, `Charter id undefined`);
+  }
+  if(typeof achievement_id === "undefined") {
+    throw new ApiError(400, `Achievement id undefined`);
+  }
+
+  let newCon = await AccountAchievement.create({
+    charter_id,
+    account_id: account.id,
+    achievement_id
+  });
+  return {
+    conAchievement: newCon
+  }
+}
 
 module.exports = {
   getAllAchievement,
-  setAchievement
+  setAchievement,
+  setConAchievement,
+  getAccountAchievement
 }

@@ -221,6 +221,14 @@ const AccountAchievement = connection.define("account_achievement", {
     }
 });
 
+Achievement.hasMany(AccountAchievement, {
+    foreignKey: {
+        name: 'achievement_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+})
+
 const Module = connection.define("module",
     {
         id: {
