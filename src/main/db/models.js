@@ -53,7 +53,7 @@ const Charter = connection.define("charter",
                 if(accounts > 0) {
                     for (let i = 0; i < accounts.length; i++) {
                         const el = accounts[i];
-                        AccountLvlCharter.create({
+                        await AccountLvlCharter.create({
                           account_id: el.id,
                           charter_id: charter.id
                         });
@@ -129,7 +129,7 @@ const Account = connection.define("account",
                 if(charters.length > 0) {
                     for (let i = 0; i < charters.length; i++) {
                         const el = charters[i];
-                        AccountLvlCharter.create({
+                        await AccountLvlCharter.create({
                           account_id: user.id,
                           charter_id: el.id
                         });
