@@ -176,7 +176,17 @@ const generationStudents = async(req) => {
         throw ApiError.forbidden();
     }
 
-    let listStudents = JSON.parse(req.body.listStudents);
+    let class_id = req.body.class_id;
+    if(typeof class_id === "undefined")
+        throw new ApiError(400, "Class id undefined");
+
+    let listStudents;
+    try{
+        listStudents = JSON.parse(req.body.listStudents);
+    } catch (e) {
+        throw new ApiError(400, "Invalid listStudents");
+    }
+
     let studentsInDB = [];
     let resultStudents = [];
     for(let student of listStudents) {
@@ -191,6 +201,7 @@ const generationStudents = async(req) => {
                 nickname: nickname,
                 email: student.email,
                 password: bcrypt.hashSync(password, 2),
+                class_id
             }
         );
 
@@ -201,7 +212,8 @@ const generationStudents = async(req) => {
                 surname: student.surname,
                 nickname: nickname,
                 email: student.email,
-                password: password
+                password: password,
+                class_id
             }
         );
     }
