@@ -41,6 +41,8 @@ const getAllTheme = async (req) => {
             id: el.id,
             name: el.name,
             module_id: el.module_id,
+            video_url: el.video_url,
+            description: el.description
         });
     });
 
@@ -101,6 +103,8 @@ const getThemesModule = async (req) => {
             id: el.id,
             name: el.name,
             module_id: el.module_id,
+            video_url: el.video_url,
+            description: el.description
         });
     });
 
@@ -119,7 +123,15 @@ const setTheme = async (req) => {
 
     let name = req.query.name;
     let module_id = req.query.module_id;
+    let description = req.query.description;
+    let video_url = req.query.video_url;
 
+    if(typeof description === "undefined") {
+        throw new ApiError(400, `Description undefined`);
+    }
+    if(typeof video_url === "undefined") {
+        video_url = "";
+    }
     if(typeof name === "undefined") {
         throw new ApiError(400, `Name undefined`);
     }
@@ -128,19 +140,25 @@ const setTheme = async (req) => {
     }
 
     let newTheme = await Theme.create({
-        name
+        name,
+        description,
+        video_url
     });
     
     await ThemeModule.create({
         module_id: module_id,
         theme_id: newTheme.id
-    });
+    }).catch(e => {
+        console.log(e);
+    })
 
     return {
         theme: {
             id: newTheme.id,
             name: newTheme.name,
             module_id: newTheme.module_id,
+            video_url: newTheme.video_url,
+            description: newTheme.description
         }
     }
 }
