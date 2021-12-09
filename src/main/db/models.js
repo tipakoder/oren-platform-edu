@@ -50,13 +50,16 @@ const Charter = connection.define("charter",
         hooks: {
             afterCreate: async function(charter, options) {
                 let accounts = await Account.findAll();
-                for (let i = 0; i < accounts.length; i++) {
-                    const el = accounts[i];
-                    AccountLvlCharter.create({
-                      account_id: el.id,
-                      charter_id: charter.id
-                    });
-                } 
+                if(accounts > 0) {
+                    for (let i = 0; i < accounts.length; i++) {
+                        const el = accounts[i];
+                        await AccountLvlCharter.create({
+                          account_id: el.id,
+                          charter_id: charter.id
+                        });
+                    } 
+                }
+                return;
             }
         }
     }
@@ -123,13 +126,16 @@ const Account = connection.define("account",
         hooks: {
             afterCreate: async function(user, options) {
                 let charters = await Charter.findAll();
-                for (let i = 0; i < charters.length; i++) {
-                    const el = charters[i];
-                    AccountLvlCharter.create({
-                      account_id: user.id,
-                      charter_id: el.id
-                    });
-                } 
+                if(charters.length > 0) {
+                    for (let i = 0; i < charters.length; i++) {
+                        const el = charters[i];
+                        await AccountLvlCharter.create({
+                          account_id: user.id,
+                          charter_id: el.id
+                        });
+                    } 
+                }
+                return;
             }
         }
     }
@@ -215,6 +221,14 @@ const AccountAchievement = connection.define("account_achievement", {
     }
 });
 
+Achievement.hasMany(AccountAchievement, {
+    foreignKey: {
+        name: 'achievement_id',
+        allowNull: false,
+    },
+    onDelete: 'CASCADE'
+})
+
 const Module = connection.define("module",
     {
         id: {
@@ -269,6 +283,18 @@ const Theme = connection.define("theme",
             type: DataTypes.TIME,
             allowNull: false,
             defaultValue: "00:10:00"
+        },
+        description: {
+            type: DataTypes.STRING,
+            unique: true,
+            allowNull: false,
+            defaultValue: ""
+        },
+        video_url: {
+            type: DataTypes.STRING,
+            unique: true,
+            allowNull: false,
+            defaultValue: ""
         }
     }
 );
