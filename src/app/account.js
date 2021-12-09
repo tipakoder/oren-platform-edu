@@ -182,9 +182,11 @@ const generationStudents = async(req) => {
 
     let listStudents;
     try{
+        console.log(req.body.listStudents)
         listStudents = JSON.parse(req.body.listStudents);
+        console.log(listStudents)
     } catch (e) {
-        throw new ApiError(400, "Invalid listStudents");
+        //throw new ApiError(400, "Invalid listStudents");
     }
 
     let studentsInDB = [];
