@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const ApiError = require("../main/error/apiError");
 const Response = require("../main/server/response");
-const {Account, AccountSession} = require("../main/db/models");
+const {Account, AccountSession, Class} = require("../main/db/models");
 
 /**
  * Create session
@@ -179,6 +179,8 @@ const generationStudents = async(req) => {
     let class_id = req.body.class_id;
     if(typeof class_id === "undefined")
         throw new ApiError(400, "Class id undefined");
+    if(!(await Class.findOne({where: {id: class_id}})))
+        throw new ApiError(400, "Class is not found");
 
     let listStudents;
     try{
