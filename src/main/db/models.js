@@ -292,7 +292,6 @@ const Theme = connection.define("theme",
         },
         video_url: {
             type: DataTypes.STRING,
-            unique: true,
             allowNull: false,
             defaultValue: ""
         }
