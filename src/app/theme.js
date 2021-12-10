@@ -140,17 +140,15 @@ const setTheme = async (req) => {
     }
 
     let newTheme = await Theme.create({
-        name,
-        description,
-        video_url
+        name: name,
+        description: description,
+        video_url: video_url
     });
-    
+
     await ThemeModule.create({
         module_id: module_id,
         theme_id: newTheme.id
-    }).catch(e => {
-        console.log(e);
-    })
+    });
 
     return {
         theme: {
