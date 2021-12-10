@@ -227,9 +227,66 @@ const generationStudents = async(req) => {
     }
 }
 
+/**
+ * Generation accounts for students
+ * @param req
+ * @return {Promise<void>}
+ */
+const generationTeachers = async(req) => {
+    let adminAccount = await verifyToken(req);
+
+    // If not admin
+    if(adminAccount.role !== "admin") {
+        throw ApiError.forbidden();
+    }
+
+    let listTeachers;
+    try{
+        listTeachers = JSON.parse(req.body.listTeachers);
+    } catch (e) {
+        throw new ApiError(400, "Invalid listTeachers");
+    }
+
+    let teachersInDB = [];
+    let resultTeachers = [];
+    for(let teacher of listTeachers) {
+        let nickname = /(.+)@(\w+)\.(\w+)/.exec(teacher.email)[1];
+        let password = generationPassword();
+
+        // In insert db
+        teachersInDB.push(
+            {
+                name: teacher.name,
+                surname: teacher.surname,
+                nickname: nickname,
+                email: teacher.email,
+                password: bcrypt.hashSync(password, 2)
+            }
+        );
+
+        // In out response
+        resultTeachers.push(
+            {
+                name: teacher.name,
+                surname: teacher.surname,
+                nickname: nickname,
+                email: teacher.email,
+                password: password
+            }
+        );
+    }
+
+    Account.bulkCreate(teachersInDB);
+
+    return {
+        teachers: resultTeachers
+    }
+}
+
 module.exports = {
     registerByCode,
     auth,
     verifyToken,
-    generationStudents
+    generationStudents,
+    generationTeachers
 }

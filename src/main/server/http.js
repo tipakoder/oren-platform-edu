@@ -46,9 +46,9 @@ class HttpServer {
         if(!fs.existsSync(global.publicDirectory))
             fs.mkdirSync(global.publicDirectory);
 
-        this.#app.use("/public", express.static(global.publicDirectory));
+        this.#app.use("/api/public", express.static(global.publicDirectory));
 
-        this.#app.use("/:module/:action", async(req, res, next) => {
+        this.#app.use("/api/:module/:action", async(req, res, next) => {
             return await this.routing(req, res, next);
         });
 
