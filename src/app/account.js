@@ -26,8 +26,8 @@ const createSession = (account_id) => {
  * @param length
  * @return {string}
  */
-const generationPassword = (length = 6) => {
-    const symbols = "abcdefghijklmnopqrstuvwxyz1234567890@*&^%$#!()+_-:.<>,";
+const generationPassword = (length = 8) => {
+    const symbols = "abcdefghijklmnopqrstuvwxyz1234567890@*^%$!()_";
     let password = "";
     for(let i = 0; i < length; i++) {
         let randSymbol = Math.floor(Math.random() * symbols.length);
@@ -122,6 +122,8 @@ const auth = async(req) => {
         }
     }
 
+    console.log(password)
+    console.log(accountByLogin.dataValues.password)
     let passwordCheck = bcrypt.compareSync(password, accountByLogin.dataValues.password);
 
     if(!passwordCheck) {
